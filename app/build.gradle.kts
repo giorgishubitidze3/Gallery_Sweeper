@@ -49,6 +49,7 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation ("com.github.bumptech.glide:glide:4.16.0") //glide for image loading
+    implementation ("com.github.yuyakaido:CardStackView:v2.3.4") // cardstackview
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

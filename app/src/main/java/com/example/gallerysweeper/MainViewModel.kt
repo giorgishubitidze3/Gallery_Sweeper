@@ -9,9 +9,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gallerysweeper.data.MediaItem
+import com.example.gallerysweeper.data.MonthGroup
+import com.example.gallerysweeper.data.YearGroup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Calendar
 
 class MainViewModel(): ViewModel() {
     private val _permissionStateRead = MutableLiveData<Boolean>(false)
@@ -28,6 +31,9 @@ class MainViewModel(): ViewModel() {
 
     private val _allScreenshots = MutableLiveData<List<MediaItem>>()
     val allScreenshots : LiveData<List<MediaItem>> get() = _allScreenshots
+
+    private val _groupedMediaItems = MutableLiveData<List<YearGroup>>()
+    val groupedMediaItems: LiveData<List<YearGroup>> get() = _groupedMediaItems
 
 
 
@@ -131,6 +137,40 @@ class MainViewModel(): ViewModel() {
         }
 
 
+    }
+
+    fun getMediaItemsByYearAndMonth(mediaItems: List<MediaItem>): List<YearGroup> {
+        return mediaItems.groupBy { item ->
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = item.dateAdded * 1000
+            }
+            calendar.get(Calendar.YEAR)
+        }.map { (year, itemsInYear) ->
+            YearGroup(
+                year = year,
+                months = itemsInYear.groupBy { item ->
+                    val calendar = Calendar.getInstance().apply {
+                        timeInMillis = item.dateAdded * 1000
+                    }
+                    calendar.get(Calendar.MONTH)
+                }.map { (month, itemsInMonth) ->
+                    MonthGroup(month = month, items = itemsInMonth.sortedByDescending { it.dateAdded })
+                }.sortedByDescending { it.month }
+            )
+        }.sortedByDescending { it.year }
+    }
+
+    fun updateGroupedMediaItems() {
+        viewModelScope.launch {
+            val grouped = getMediaItemsByYearAndMonth(_allMediaItems.value ?: emptyList())
+            _groupedMediaItems.postValue(grouped)
+        }
+    }
+
+    private fun getMonthName(month: Int): String {
+        val monthNames = arrayOf("January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December")
+        return monthNames[month]
     }
 
     private fun isScreenshot(fileName: String): Boolean {

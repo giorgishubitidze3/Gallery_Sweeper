@@ -57,6 +57,8 @@ class HomeFragment : Fragment() {
                     val totalSizeBytes = list.sumOf { it.size }
                     val totalSizeGB = totalSizeBytes?.let { viewModel.bytesToGB(it) }
 
+                    viewModel.updateGroupedMediaItems()
+
                     binding.tvTotalItemCount.text = "Total items: $totalItems"
                     binding.tvTotalItemsSize.text = "%.2f GB".format(totalSizeGB)
                 }
