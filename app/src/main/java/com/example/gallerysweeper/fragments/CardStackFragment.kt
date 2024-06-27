@@ -8,7 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import com.example.gallerysweeper.MainViewModel
+import com.example.gallerysweeper.R
 import com.example.gallerysweeper.adapters.CardViewAdapter
 import com.example.gallerysweeper.data.MonthGroup
 import com.example.gallerysweeper.databinding.FragmentCardStackBinding
@@ -36,6 +38,8 @@ class CardStackFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
+        val navController = activity?.findNavController(R.id.fragment_container)
+
 
         val selectedFiles: MonthGroup? = arguments?.getParcelable("selectedMonth")
         selectedFiles?.let {
@@ -54,7 +58,7 @@ class CardStackFragment : Fragment() {
             }
 
             override fun onCardSwiped(direction: Direction?) {
-                if(direction == Direction.Right){
+                if(direction == Direction.Left){
                     val swipedPosition = layoutManager.topPosition - 1
                     val swipedItem = adapter.getItem(swipedPosition)
                     viewModel.addSwipedItem(swipedItem)
@@ -103,6 +107,10 @@ class CardStackFragment : Fragment() {
                 .build()
             layoutManager.setRewindAnimationSetting(setting)
             cardStackView.rewind()
+        }
+
+        binding.btnDone.setOnClickListener{
+            navController?.navigate(R.id.action_cardStackFragment_to_listToDeleteFragment)
         }
     }
 

@@ -34,5 +34,17 @@
         <action
             android:id="@+id/action_cardStackFragment_to_allMediaFragment"
             app:destination="@id/allMediaFragment" />
+        <action
+            android:id="@+id/action_cardStackFragment_to_listToDeleteFragment"
+            app:destination="@id/listToDeleteFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/listToDeleteFragment"
+        android:name="com.example.gallerysweeper.fragments.ListToDeleteFragment"
+        android:label="fragment_list_to_delete"
+        tools:layout="@layout/fragment_list_to_delete" >
+        <action
+            android:id="@+id/action_listToDeleteFragment_to_cardStackFragment"
+            app:destination="@id/cardStackFragment" />
     </fragment>
 </navigation>

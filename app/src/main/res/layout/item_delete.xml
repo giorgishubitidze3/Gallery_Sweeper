@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:layout_margin="1dp"
+    >
+
+    <CheckBox
+        android:id="@+id/button_delete_list_check"
+        android:layout_gravity="end"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:visibility="visible"
+        android:elevation="10dp"
+        android:checkMark="?android:attr/listChoiceIndicatorSingle"
+        />
+
+    <ImageView
+        android:scaleType="centerCrop"
+        android:id="@+id/img_delete_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+
+
+</androidx.cardview.widget.CardView>
