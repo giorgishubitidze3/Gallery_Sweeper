@@ -12,7 +12,7 @@ import java.text.DateFormatSymbols
 import java.time.Year
 
 
-class MonthAdapter(): RecyclerView.Adapter<MonthAdapter.ViewHolder>() {
+class MonthAdapter(private val switchToCardStackCallback: (MonthGroup) -> Unit): RecyclerView.Adapter<MonthAdapter.ViewHolder>() {
 
     var list : List<MonthGroup> = listOf()
         set(value) {
@@ -40,6 +40,10 @@ class MonthAdapter(): RecyclerView.Adapter<MonthAdapter.ViewHolder>() {
 
         holder.month.text = getMonthName(currentItem.month)
         holder.count.text = currentItem.items.size.toString()
+
+        holder.itemView.setOnClickListener {
+            switchToCardStackCallback(currentItem)
+        }
     }
 
     private fun getMonthName(month: Int): String {

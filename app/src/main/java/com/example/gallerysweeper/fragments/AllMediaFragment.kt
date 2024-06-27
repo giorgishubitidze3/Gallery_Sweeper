@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import com.example.gallerysweeper.MainViewModel
 import com.example.gallerysweeper.R
 import com.example.gallerysweeper.adapters.AllMediaAdapter
@@ -30,16 +31,21 @@ class AllMediaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val navController = activity?.findNavController(R.id.fragment_container)
+
         val viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
 
         val recyclerView = binding.recyclerViewAllItems
-        val adapter = AllMediaAdapter()
+        val adapter = navController?.let { AllMediaAdapter(it) }
 
         viewModel.groupedMediaItems.observe(viewLifecycleOwner){list ->
-            adapter.setData(list)
+            if (adapter != null) {
+                adapter.setData(list)
+            }
         }
 
         recyclerView.adapter = adapter
+
 
 
     }

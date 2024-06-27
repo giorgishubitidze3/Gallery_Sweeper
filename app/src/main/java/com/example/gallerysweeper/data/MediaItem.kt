@@ -1,7 +1,10 @@
 package com.example.gallerysweeper.data
 
 import android.net.Uri
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class MediaItem(
     val id : Long,
     val uri :Uri,
@@ -9,4 +12,4 @@ data class MediaItem(
     val size : Long,
     val dateAdded : Long,
     val isVideo : Boolean
-)
+): Parcelable

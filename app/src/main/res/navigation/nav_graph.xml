@@ -22,5 +22,17 @@
         <action
             android:id="@+id/action_allMediaFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_allMediaFragment_to_cardStackFragment"
+            app:destination="@id/cardStackFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cardStackFragment"
+        android:name="com.example.gallerysweeper.fragments.CardStackFragment"
+        android:label="fragment_card_stack"
+        tools:layout="@layout/fragment_card_stack" >
+        <action
+            android:id="@+id/action_cardStackFragment_to_allMediaFragment"
+            app:destination="@id/allMediaFragment" />
     </fragment>
 </navigation>

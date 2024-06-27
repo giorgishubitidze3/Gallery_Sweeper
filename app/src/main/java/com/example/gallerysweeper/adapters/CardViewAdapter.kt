@@ -29,14 +29,19 @@ class CardViewAdapter():RecyclerView.Adapter<CardViewAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
          val currentItem = list[position]
 
-        Glide.with(holder.img)
+
+        Glide.with(holder.img.context)
             .load(currentItem.uri)
             .into(holder.img)
-
     }
+
+
 
     fun setData(list:List<MediaItem>){
         this.list = list
         notifyDataSetChanged()
     }
+
+    fun getItem(position: Int): MediaItem = list[position]
+
 }

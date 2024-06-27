@@ -35,6 +35,14 @@ class MainViewModel(): ViewModel() {
     private val _groupedMediaItems = MutableLiveData<List<YearGroup>>()
     val groupedMediaItems: LiveData<List<YearGroup>> get() = _groupedMediaItems
 
+    private val _itemsToDelete = MutableLiveData<List<MediaItem>>()
+    val itemsToDelete: LiveData<List<MediaItem>> get() = _itemsToDelete
+
+
+    fun addSwipedItem(item: MediaItem) {
+        val currentList = _itemsToDelete.value ?: listOf()
+        _itemsToDelete.value = currentList + item
+    }
 
 
     fun givePermissionRead(){
