@@ -13,4 +13,12 @@
         android:layout_height="match_parent"
         />
 
+    <Button
+        android:id="@+id/btn_clean"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="10dp"
+        android:text="Clean"
+        android:layout_width="100dp"
+        android:layout_height="50dp"/>
+
 </FrameLayout>

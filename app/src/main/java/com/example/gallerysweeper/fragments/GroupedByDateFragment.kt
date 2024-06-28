@@ -5,7 +5,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.example.gallerysweeper.MainViewModel
@@ -14,7 +13,7 @@ import com.example.gallerysweeper.adapters.AllMediaAdapter
 import com.example.gallerysweeper.databinding.FragmentAllMediaBinding
 
 
-class AllMediaFragment : Fragment() {
+class GroupedByDateFragment : Fragment() {
 
     private lateinit var binding: FragmentAllMediaBinding
 
@@ -39,9 +38,7 @@ class AllMediaFragment : Fragment() {
         val adapter = navController?.let { AllMediaAdapter(it) }
 
         viewModel.groupedMediaItems.observe(viewLifecycleOwner){list ->
-            if (adapter != null) {
-                adapter.setData(list)
-            }
+            adapter?.setData(list)
         }
 
         recyclerView.adapter = adapter

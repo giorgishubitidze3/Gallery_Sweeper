@@ -57,7 +57,7 @@ class HomeFragment : Fragment() {
                     val totalSizeBytes = list.sumOf { it.size }
                     val totalSizeGB = totalSizeBytes?.let { viewModel.bytesToGB(it) }
 
-                    viewModel.updateGroupedMediaItems()
+//                    viewModel.updateGroupedMediaItems()
 
                     binding.tvTotalItemCount.text = "Total items: $totalItems"
                     binding.tvTotalItemsSize.text = "%.2f GB".format(totalSizeGB)
@@ -93,9 +93,31 @@ class HomeFragment : Fragment() {
             }
 
 
-            binding.cardViewAllMedia.setOnClickListener {
-                navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
-            }
+
+                binding.cardViewAllMedia.setOnClickListener {
+                    viewModel.updateGroupedTypeValue("AllMedia")
+                    navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
+                    viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
+                }
+
+                binding.cardViewPhotos.setOnClickListener {
+                    viewModel.updateGroupedTypeValue("AllPhotos")
+                    navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
+                    viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
+                }
+
+                binding.cardViewVideos.setOnClickListener {
+                    viewModel.updateGroupedTypeValue("AllVideos")
+                    navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
+                    viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
+                }
+
+                binding.cardViewScreenshots.setOnClickListener {
+                    viewModel.updateGroupedTypeValue("AllScreenshots")
+                    navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
+                    viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
+                }
+
         }
     }
 

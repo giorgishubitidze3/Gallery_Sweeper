@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/allMediaFragment"
-        android:name="com.example.gallerysweeper.fragments.AllMediaFragment"
+        android:name="com.example.gallerysweeper.fragments.GroupedByDateFragment"
         android:label="fragment_all_media"
         tools:layout="@layout/fragment_all_media" >
         <action

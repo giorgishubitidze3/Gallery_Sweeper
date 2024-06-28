@@ -39,7 +39,7 @@ class CardViewAdapter():RecyclerView.Adapter<CardViewAdapter.ViewHolder>() {
 
     fun setData(list:List<MediaItem>){
         this.list = list
-        notifyDataSetChanged()
+//        notifyDataSetChanged()
     }
 
     fun getItem(position: Int): MediaItem = list[position]

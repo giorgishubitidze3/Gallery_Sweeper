@@ -25,7 +25,7 @@ class CardStackFragment : Fragment() {
 
     private lateinit var binding : FragmentCardStackBinding
     lateinit var layoutManager: CardStackLayoutManager
-
+    private lateinit var viewModel :MainViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,7 +37,7 @@ class CardStackFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
+         viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         val navController = activity?.findNavController(R.id.fragment_container)
 
 
@@ -63,8 +63,10 @@ class CardStackFragment : Fragment() {
                     val swipedItem = adapter.getItem(swipedPosition)
                     viewModel.addSwipedItem(swipedItem)
                     Log.d("CardStackListenerImpl", "onCardSwiped direction: $direction")
-                }else{
-                    Log.d("CardStackListenerImpl", "onCardSwiped direction: $direction")
+                } else if(direction == Direction.Right){
+                    val swipedPosition = layoutManager.topPosition - 1
+                    val swipedItem = adapter.getItem(swipedPosition)
+                    viewModel.removeSwipedItem(swipedItem)
                 }
             }
 
@@ -82,12 +84,17 @@ class CardStackFragment : Fragment() {
 
             override fun onCardDisappeared(view: View?, position: Int) {
                 Log.d("CardStackListenerImpl", "onCardDisappeared")
+                viewModel.setCurrentCardPosition(position + 1)
             }
 
         }).apply{
             setDirections(Direction.HORIZONTAL)
             setSwipeableMethod(SwipeableMethod.AutomaticAndManual)
             setCanScrollVertical(false)
+        }
+
+        viewModel.currentCardPosition.observe(viewLifecycleOwner) { position ->
+            layoutManager.scrollToPosition(position)
         }
 
         cardStackView.adapter = adapter
@@ -107,6 +114,7 @@ class CardStackFragment : Fragment() {
                 .build()
             layoutManager.setRewindAnimationSetting(setting)
             cardStackView.rewind()
+            viewModel.decreaseCurrentCardPosition()
         }
 
         binding.btnDone.setOnClickListener{
@@ -114,4 +122,10 @@ class CardStackFragment : Fragment() {
         }
     }
 
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        viewModel.resetCurrentCardPosition()
+    }
 }

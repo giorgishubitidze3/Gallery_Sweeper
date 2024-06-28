@@ -1,9 +1,15 @@
 package com.example.gallerysweeper
 
+import android.app.Application
+import android.app.RecoverableSecurityException
+import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
+import android.content.IntentSender
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -38,10 +44,46 @@ class MainViewModel(): ViewModel() {
     private val _itemsToDelete = MutableLiveData<List<MediaItem>>()
     val itemsToDelete: LiveData<List<MediaItem>> get() = _itemsToDelete
 
+    private val _currentCardPosition = MutableLiveData<Int>(0)
+    val currentCardPosition: LiveData<Int> = _currentCardPosition
 
+    private val _groupedType = MutableLiveData<String>()
+    val groupedType: LiveData<String> get() = _groupedType
+
+    fun updateGroupedTypeValue(type:String){
+        _groupedType.value = type
+    }
+
+
+    fun setCurrentCardPosition(position: Int) {
+        _currentCardPosition.value = position
+    }
+
+    fun decreaseCurrentCardPosition(){
+        val currentPosition = _currentCardPosition.value ?: 0
+        if(currentPosition != 0){
+            _currentCardPosition.value = currentPosition - 1
+        }
+
+    }
+
+    fun resetCurrentCardPosition(){
+        _currentCardPosition.value = 0
+    }
     fun addSwipedItem(item: MediaItem) {
         val currentList = _itemsToDelete.value ?: listOf()
-        _itemsToDelete.value = currentList + item
+        if(!currentList.contains(item)){
+            _itemsToDelete.value = currentList + item
+        }
+        else{
+            Log.d("MainViewModel","Item already in the swipedList")
+        }
+    }
+
+    fun removeSwipedItem(item:MediaItem){
+        val currentList = _itemsToDelete.value ?: listOf()
+        val updatedList = currentList.filter{it != item}
+        _itemsToDelete.value = updatedList
     }
 
 
@@ -147,6 +189,38 @@ class MainViewModel(): ViewModel() {
 
     }
 
+    fun deleteMediaItems(context: Context, groupType: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val contentResolver = context.contentResolver
+            val itemsToDelete = _itemsToDelete.value ?: return@launch
+
+            itemsToDelete.forEach { mediaItem ->
+                try {
+                    val rowsDeleted = contentResolver.delete(mediaItem.uri, null, null)
+                    if (rowsDeleted > 0) {
+                        Log.d("MainViewModel", "Deleted: ${mediaItem.uri}")
+                    } else {
+                        Log.d("MainViewModel", "Failed to delete: ${mediaItem.uri}")
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Log.e("MainViewModel", "Error deleting: ${mediaItem.uri}")
+                }
+            }
+
+            val remainingItems = _allMediaItems.value?.filter { it !in itemsToDelete } ?: listOf()
+            withContext(Dispatchers.Main) {
+                _allMediaItems.value = remainingItems
+                _allPhotos.value = remainingItems.filter { !it.isVideo && !isScreenshot(it.name) }
+                _allVideos.value = remainingItems.filter { it.isVideo }
+                _allScreenshots.value = remainingItems.filter { isScreenshot(it.name) }
+                _itemsToDelete.value = listOf() // Clear the delete list
+                updateGroupedMediaItems(groupType)
+            }
+        }
+    }
+
+
     fun getMediaItemsByYearAndMonth(mediaItems: List<MediaItem>): List<YearGroup> {
         return mediaItems.groupBy { item ->
             val calendar = Calendar.getInstance().apply {
@@ -168,10 +242,20 @@ class MainViewModel(): ViewModel() {
         }.sortedByDescending { it.year }
     }
 
-    fun updateGroupedMediaItems() {
+    fun updateGroupedMediaItems(type:String) {
         viewModelScope.launch {
-            val grouped = getMediaItemsByYearAndMonth(_allMediaItems.value ?: emptyList())
-            _groupedMediaItems.postValue(grouped)
+            when(type){
+                "AllMedia" ->   {val grouped = getMediaItemsByYearAndMonth(_allMediaItems.value ?: emptyList())
+                _groupedMediaItems.postValue(grouped)}
+                "AllPhotos" -> {val grouped = getMediaItemsByYearAndMonth(_allPhotos.value ?: emptyList())
+                    _groupedMediaItems.postValue(grouped)}
+                "AllVideos" -> {val grouped = getMediaItemsByYearAndMonth(_allVideos.value ?: emptyList())
+                    _groupedMediaItems.postValue(grouped)}
+                "AllScreenshots" -> {val grouped = getMediaItemsByYearAndMonth(_allScreenshots.value ?: emptyList())
+                    _groupedMediaItems.postValue(grouped)}
+                else -> Log.d("MainViewModel","updateGroupedMediaItems invalid string")
+            }
+
         }
     }
 

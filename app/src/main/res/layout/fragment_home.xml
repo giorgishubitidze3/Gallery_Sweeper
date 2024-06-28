@@ -164,7 +164,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@drawable/bottom_gradient"
-                android:layout_gravity="bottom">
+                android:layout_gravity="bottom"
+                android:elevation="5dp">
 
                 <TextView
                     android:id="@+id/tv_photos"
@@ -221,7 +222,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@drawable/bottom_gradient"
-                android:layout_gravity="bottom">
+                android:layout_gravity="bottom"
+                >
 
                 <TextView
                     android:id="@+id/tv_videos"
