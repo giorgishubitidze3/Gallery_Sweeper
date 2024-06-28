@@ -26,6 +26,8 @@ class CardStackFragment : Fragment() {
     private lateinit var binding : FragmentCardStackBinding
     lateinit var layoutManager: CardStackLayoutManager
     private lateinit var viewModel :MainViewModel
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -55,10 +57,31 @@ class CardStackFragment : Fragment() {
         layoutManager = CardStackLayoutManager(requireContext(), object:CardStackListener{
             override fun onCardDragging(direction: Direction?, ratio: Float) {
                 Log.d("CardStackListenerImpl", "onCardDragging Dragging $direction direction and ratio: $ratio")
+                val topView = layoutManager.topView ?: return
+
+                val leftOverlay: View? = topView.findViewById(R.id.left_overlay)
+                val rightOverlay: View? = topView.findViewById(R.id.right_overlay)
+
+                when (direction) {
+                    Direction.Left -> {
+                        leftOverlay?.visibility = View.VISIBLE
+                        rightOverlay?.visibility = View.GONE
+                        leftOverlay?.alpha = ratio
+                    }
+                    Direction.Right -> {
+                        rightOverlay?.visibility = View.VISIBLE
+                        leftOverlay?.visibility = View.GONE
+                        rightOverlay?.alpha = ratio
+                    }
+                    else -> {
+                        leftOverlay?.visibility = View.GONE
+                        rightOverlay?.visibility = View.GONE
+                    }
+                }
             }
 
             override fun onCardSwiped(direction: Direction?) {
-                if(direction == Direction.Left){
+                if(direction == Direction.Right){
                     val swipedPosition = layoutManager.topPosition - 1
                     val swipedItem = adapter.getItem(swipedPosition)
                     viewModel.addSwipedItem(swipedItem)
@@ -68,6 +91,13 @@ class CardStackFragment : Fragment() {
                     val swipedItem = adapter.getItem(swipedPosition)
                     viewModel.removeSwipedItem(swipedItem)
                 }
+
+                val topView = layoutManager.topView ?: return
+                val leftOverlay: View = topView.findViewById(R.id.left_overlay)
+                val rightOverlay: View = topView.findViewById(R.id.right_overlay)
+
+                leftOverlay.visibility = View.GONE
+                rightOverlay.visibility = View.GONE
             }
 
             override fun onCardRewound() {
@@ -86,6 +116,7 @@ class CardStackFragment : Fragment() {
                 Log.d("CardStackListenerImpl", "onCardDisappeared")
                 viewModel.setCurrentCardPosition(position + 1)
             }
+
 
         }).apply{
             setDirections(Direction.HORIZONTAL)

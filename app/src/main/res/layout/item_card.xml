@@ -9,11 +9,42 @@
     app:cardCornerRadius="32dp"
     android:layout_margin="20dp">
 
+
     <ImageView
         android:id="@+id/item_card_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/black"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/left_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/left_overlay"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/icon_thumbs_down"
+            android:layout_marginHorizontal="50dp"
+            android:layout_marginTop="50dp"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/right_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/right_overlay"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/icon_thumbs_up"
+            android:layout_margin="50dp"/>
+
+    </FrameLayout>
 
 </androidx.cardview.widget.CardView>
