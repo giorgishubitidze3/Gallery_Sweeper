@@ -4,6 +4,7 @@ import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.READ_MEDIA_AUDIO
 import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.Manifest.permission.READ_MEDIA_VIDEO
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -52,9 +53,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkAndRequestPermissions() {
         val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VIDEO)
+            arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, WRITE_EXTERNAL_STORAGE)
         } else {
-            arrayOf(READ_EXTERNAL_STORAGE)
+            arrayOf(READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE)
         }
 
         val allPermissionsGranted = permissionsToRequest.all {

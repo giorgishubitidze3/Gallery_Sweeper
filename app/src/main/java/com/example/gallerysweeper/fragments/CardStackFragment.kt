@@ -86,7 +86,7 @@ class CardStackFragment : Fragment() {
                     val swipedItem = adapter.getItem(swipedPosition)
                     viewModel.addSwipedItem(swipedItem)
                     Log.d("CardStackListenerImpl", "onCardSwiped direction: $direction")
-                } else if(direction == Direction.Right){
+                } else if(direction == Direction.Left){
                     val swipedPosition = layoutManager.topPosition - 1
                     val swipedItem = adapter.getItem(swipedPosition)
                     viewModel.removeSwipedItem(swipedItem)

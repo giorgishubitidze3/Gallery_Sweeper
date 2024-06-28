@@ -259,11 +259,6 @@ class MainViewModel(): ViewModel() {
         }
     }
 
-    private fun getMonthName(month: Int): String {
-        val monthNames = arrayOf("January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December")
-        return monthNames[month]
-    }
 
     private fun isScreenshot(fileName: String): Boolean {
         //todo check later how to find screenshots
