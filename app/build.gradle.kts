@@ -51,6 +51,8 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation ("com.github.bumptech.glide:glide:4.16.0") //glide for image loading
     implementation ("com.github.yuyakaido:CardStackView:v2.3.4") // cardstackview
+    implementation ("androidx.media3:media3-exoplayer:1.3.1")
+    implementation ("androidx.media3:media3-ui:1.3.1")
     implementation ("org.jetbrains.kotlin:kotlin-parcelize-runtime:1.8.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

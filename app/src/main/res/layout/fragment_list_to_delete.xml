@@ -21,4 +21,13 @@
         android:layout_width="100dp"
         android:layout_height="50dp"/>
 
+    <Button
+        android:id="@+id/btn_restore"
+        android:layout_gravity="bottom"
+        android:layout_margin="10dp"
+        android:text="Restore"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:visibility="gone"/>
+
 </FrameLayout>

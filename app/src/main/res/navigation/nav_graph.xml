@@ -33,7 +33,9 @@
         tools:layout="@layout/fragment_card_stack" >
         <action
             android:id="@+id/action_cardStackFragment_to_allMediaFragment"
-            app:destination="@id/allMediaFragment" />
+            app:destination="@id/allMediaFragment"
+            app:popUpTo="@id/allMediaFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_cardStackFragment_to_listToDeleteFragment"
             app:destination="@id/listToDeleteFragment" />

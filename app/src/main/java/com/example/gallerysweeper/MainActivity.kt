@@ -1,5 +1,6 @@
 package com.example.gallerysweeper
 
+import android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.READ_MEDIA_AUDIO
 import android.Manifest.permission.READ_MEDIA_IMAGES
@@ -52,10 +53,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkAndRequestPermissions() {
-        val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, WRITE_EXTERNAL_STORAGE)
-        } else {
-            arrayOf(READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE)
+        val permissionsToRequest = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE)
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                arrayOf(MANAGE_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
+            }
+            else -> {
+                arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE)
+            }
         }
 
         val allPermissionsGranted = permissionsToRequest.all {

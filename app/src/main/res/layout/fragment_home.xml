@@ -85,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|center_vertical"
             android:layout_marginRight="20dp"
-            android:text="10.1 GB"
+            android:text="0 GB"
             android:textSize="20sp" />
     </androidx.cardview.widget.CardView>
 

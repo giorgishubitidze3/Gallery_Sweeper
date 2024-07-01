@@ -49,7 +49,7 @@ class CardStackFragment : Fragment() {
         } ?: run {
             Toast.makeText(requireContext(), "Selected files are null", Toast.LENGTH_SHORT).show()
         }
-        val adapter = CardViewAdapter()
+        val adapter = CardViewAdapter(requireContext())
         selectedFiles?.items?.let { adapter.setData(it) }
 
         val cardStackView = binding.cardViewFragment
@@ -59,8 +59,8 @@ class CardStackFragment : Fragment() {
                 Log.d("CardStackListenerImpl", "onCardDragging Dragging $direction direction and ratio: $ratio")
                 val topView = layoutManager.topView ?: return
 
-                val leftOverlay: View? = topView.findViewById(R.id.left_overlay)
-                val rightOverlay: View? = topView.findViewById(R.id.right_overlay)
+                val rightOverlay: View? = topView.findViewById(R.id.left_overlay)
+                val leftOverlay: View? = topView.findViewById(R.id.right_overlay)
 
                 when (direction) {
                     Direction.Left -> {
@@ -136,6 +136,10 @@ class CardStackFragment : Fragment() {
             Log.d("CardStackListenerImpl","${list.size}")
         }
 
+        binding.btnCancel.setOnClickListener {
+            viewModel.removeAllSwipedItems()
+            navController?.navigate(R.id.action_cardStackFragment_to_allMediaFragment)
+        }
 
         binding.btnReset.setOnClickListener {
             Toast.makeText(requireContext(),"btn clicked",Toast.LENGTH_SHORT).show()
@@ -150,8 +154,10 @@ class CardStackFragment : Fragment() {
 
         binding.btnDone.setOnClickListener{
             navController?.navigate(R.id.action_cardStackFragment_to_listToDeleteFragment)
+
         }
     }
+
 
 
     override fun onDestroy() {

@@ -86,6 +86,10 @@ class MainViewModel(): ViewModel() {
         _itemsToDelete.value = updatedList
     }
 
+    fun removeAllSwipedItems(){
+        _itemsToDelete.value = emptyList()
+    }
+
 
     fun givePermissionRead(){
         _permissionStateRead.value = true
