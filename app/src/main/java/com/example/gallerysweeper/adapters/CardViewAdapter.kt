@@ -32,9 +32,9 @@ class CardViewAdapter(private val context: Context) : RecyclerView.Adapter<Recyc
 
     inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val img: ImageView = itemView.findViewById(R.id.item_card_img)
-        init {
-            itemView.background = null
-        }
+//        init {
+//            itemView.background = null
+//        }
     }
 
     inner class VideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -74,13 +74,13 @@ class CardViewAdapter(private val context: Context) : RecyclerView.Adapter<Recyc
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
-            TYPE_VIDEO -> {
-                val view = inflater.inflate(R.layout.item_card_video, parent, false)
-                VideoViewHolder(view)
-            }
-            else -> {
+            TYPE_IMAGE -> {
                 val view = inflater.inflate(R.layout.item_card, parent, false)
                 ImageViewHolder(view)
+            }
+            else -> {
+                val view = inflater.inflate(R.layout.item_card_video, parent, false)
+                VideoViewHolder(view)
             }
         }
     }

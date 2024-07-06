@@ -48,5 +48,8 @@
         <action
             android:id="@+id/action_listToDeleteFragment_to_cardStackFragment"
             app:destination="@id/cardStackFragment" />
+        <action
+            android:id="@+id/action_listToDeleteFragment_to_allMediaFragment"
+            app:destination="@id/allMediaFragment" />
     </fragment>
 </navigation>

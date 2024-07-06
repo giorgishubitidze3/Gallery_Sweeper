@@ -38,7 +38,6 @@
             android:layout_marginLeft="20dp"/>
     </androidx.cardview.widget.CardView>
 
-
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         android:layout_width="match_parent"
@@ -89,7 +88,6 @@
             android:textSize="20sp" />
     </androidx.cardview.widget.CardView>
 
-
     <androidx.cardview.widget.CardView
         android:id="@+id/card_view_all_media"
         android:layout_width="match_parent"
@@ -119,7 +117,6 @@
 
     </androidx.cardview.widget.CardView>
 
-
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
@@ -130,258 +127,202 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/card_view_all_media" />
 
-
-    <LinearLayout
-
-        android:id="@+id/linear_top"
+    <ScrollView
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="210dp"
-        android:orientation="horizontal"
+        android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView3">
+        app:layout_constraintTop_toBottomOf="@id/textView3"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_view_photos"
-            android:layout_width="175dp"
-            android:layout_height="175dp"
-            android:layout_margin="10dp"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="10dp"
-            android:layout_weight="1"
-            >
+        <LinearLayout
+            android:id="@+id/linear_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-
-            <ImageView
-                android:id="@+id/img_photos"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:src="@drawable/_716582877780"
-                android:scaleType="centerCrop"/>
+                android:layout_height="210dp"
+                android:orientation="horizontal">
 
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_view_photos"
+                    android:layout_width="175dp"
+                    android:layout_height="175dp"
+                    android:layout_margin="10dp"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="10dp"
+                    android:layout_weight="1">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+                    <ImageView
+                        android:id="@+id/img_photos"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        tools:src="@drawable/_716582877780"
+                        android:scaleType="centerCrop"/>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/bottom_gradient"
+                        android:layout_gravity="bottom"
+                        android:elevation="5dp">
+
+                        <TextView
+                            android:id="@+id/tv_photos"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Photos"
+                            android:textSize="18sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:textColor="@color/white"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/tv_photos_count"
+                            android:layout_width="wrap_content"
+                            android:maxWidth="150dp"
+                            android:layout_height="25dp"
+                            android:text="0"
+                            android:layout_marginEnd="10dp"
+                            android:layoutDirection="ltr"
+                            android:textSize="18sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:textColor="@color/white"
+                            android:gravity="center"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/bottom_gradient"
-                android:layout_gravity="bottom"
-                android:elevation="5dp">
+                android:layout_height="210dp"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tv_photos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:text="Photos"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:textColor="@color/white"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tv_photos_count"
-                    android:layout_width="wrap_content"
-                    android:maxWidth="150dp"
-                    android:layout_height="25dp"
-                    android:text="0"
-                    android:layout_marginEnd="10dp"
-                    android:layoutDirection="ltr"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_view_videos"
+                    android:layout_width="175dp"
+                    android:layout_height="175dp"
+                    android:layout_margin="10dp"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="10dp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:textColor="@color/white"
-                    android:gravity="center"/>
+                    app:layout_constraintStart_toEndOf="@+id/card_view_photos"
+                    app:layout_constraintTop_toBottomOf="@+id/textView3">
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
+                    <ImageView
+                        android:id="@+id/img_videos"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        tools:src="@drawable/_716582877780"
+                        android:scaleType="centerCrop"/>
 
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/bottom_gradient"
+                        android:layout_gravity="bottom">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_view_videos"
-            android:layout_width="175dp"
-            android:layout_height="175dp"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="10dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/card_view_photos"
-            app:layout_constraintTop_toBottomOf="@+id/textView3">
+                        <TextView
+                            android:id="@+id/tv_videos"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Videos"
+                            android:textSize="18sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:textColor="@color/white"
+                            app:layout_constraintTop_toTopOf="parent" />
 
+                        <TextView
+                            android:id="@+id/tv_videos_count"
+                            android:layout_width="wrap_content"
+                            android:maxWidth="150dp"
+                            android:layout_height="25dp"
+                            android:text="0"
+                            android:layout_marginEnd="10dp"
+                            android:layoutDirection="ltr"
+                            android:textSize="18sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:textColor="@color/white"
+                            android:gravity="center"/>
 
-            <ImageView
-                android:id="@+id/img_videos"
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:src="@drawable/_716582877780"
-                android:scaleType="centerCrop"/>
+                android:layout_height="210dp"
+                android:orientation="horizontal">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/bottom_gradient"
-                android:layout_gravity="bottom"
-                >
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_view_screenshots"
+                    android:layout_width="175dp"
+                    android:layout_height="175dp"
+                    android:layout_margin="10dp"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="10dp">
 
-                <TextView
-                    android:id="@+id/tv_videos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:text="Videos"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:textColor="@color/white"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    <ImageView
+                        android:id="@+id/img_screenshots"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        tools:src="@drawable/_716582877780" />
 
-                <TextView
-                    android:id="@+id/tv_videos_count"
-                    android:layout_width="wrap_content"
-                    android:maxWidth="150dp"
-                    android:layout_height="25dp"
-                    android:text="0"
-                    android:layout_marginEnd="10dp"
-                    android:layoutDirection="ltr"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:textColor="@color/white"
-                    android:gravity="center"/>
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_gravity="bottom"
+                        android:background="@drawable/bottom_gradient">
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                        <TextView
+                            android:id="@+id/tv_screenshots"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Screenshots"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            />
 
+                        <TextView
+                            android:id="@+id/tv_screenshots_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="25dp"
+                            android:layout_marginEnd="10dp"
+                            android:gravity="center"
+                            android:layoutDirection="ltr"
+                            android:maxWidth="100dp"
+                            android:text="0"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
-
-    <LinearLayout
-
-        android:layout_width="match_parent"
-        android:layout_height="210dp"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linear_top">
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_view_screenshots"
-            android:layout_weight="1"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="10dp"
-            android:layout_width="175dp"
-            android:layout_height="175dp"
-            android:layout_margin="10dp"
-            >
-
-            <ImageView
-                android:id="@+id/img_screenshots"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:src="@drawable/_716582877780"
-                android:scaleType="centerCrop"/>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/bottom_gradient"
-                android:layout_gravity="bottom">
-
-                <TextView
-                    android:id="@+id/tv_screenshots"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:text="Screenshots"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:textColor="@color/white"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tv_screenshots_count"
-                    android:layout_width="wrap_content"
-                    android:maxWidth="100dp"
-                    android:layout_height="25dp"
-                    android:text="0"
-                    android:layout_marginEnd="10dp"
-                    android:layoutDirection="ltr"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:textColor="@color/white"
-                    android:gravity="center"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.cardview.widget.CardView>
-
-
-        <androidx.cardview.widget.CardView
-            android:layout_weight="1"
-            android:layout_margin="10dp"
-            android:id="@+id/card_view_duplicates"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="10dp"
-            android:layout_width="175dp"
-            android:layout_height="175dp"
-            >
-
-
-            <ImageView
-                android:id="@+id/img_duplicates"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:src="@drawable/_716582877780"
-                android:scaleType="centerCrop"/>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/bottom_gradient"
-                android:layout_gravity="bottom">
-
-                <TextView
-                    android:id="@+id/tv_duplicates"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:text="Duplicates"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:textColor="@color/white"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tv_duplicates_count"
-                    android:layout_width="wrap_content"
-                    android:maxWidth="100dp"
-                    android:layout_height="25dp"
-                    android:text="0"
-                    android:layout_marginEnd="10dp"
-                    android:layoutDirection="ltr"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:textColor="@color/white"
-                    android:gravity="center"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
-
-
-
-
-
-
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

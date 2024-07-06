@@ -165,7 +165,6 @@ class CardStackFragment : Fragment() {
     private fun updateVisibleVideos() {
         val topPosition = layoutManager.topPosition
 
-        // Initialize video for the top (visible) card
         val holder = cardStackView.findViewHolderForAdapterPosition(topPosition)
         if (holder != null) {
             adapter.initializeVideoIfNeeded(holder, topPosition)
@@ -192,7 +191,39 @@ class CardStackFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        updateVisibleVideos()
+
+
+        val selectedFiles = arguments?.getParcelable<MonthGroup>("selectedMonth")
+        selectedFiles?.let { monthGroup ->
+            val updatedItems = monthGroup.items.filter { item ->
+                viewModel.allMediaItems.value?.contains(item) ?: false
+            }
+
+            if (updatedItems.size != monthGroup.items.size) {
+                adapter.setData(updatedItems)
+                adapter.notifyDataSetChanged()
+
+                if (layoutManager.topPosition >= updatedItems.size) {
+                    layoutManager.scrollToPosition(0)
+                    viewModel.resetCurrentCardPosition()
+                }
+                else{
+                    viewModel.currentCardPosition.value?.let { layoutManager.scrollToPosition(it) }
+                }
+                val updatedMonthGroup = MonthGroup(monthGroup.month, updatedItems)
+                arguments?.putParcelable("selectedMonth", updatedMonthGroup)
+
+                Toast.makeText(
+                    requireContext(),
+                    "Updated. New size: ${updatedItems.size}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            }
+
+            updateVisibleVideos()
+
+
     }
 
     override fun onPause() {
