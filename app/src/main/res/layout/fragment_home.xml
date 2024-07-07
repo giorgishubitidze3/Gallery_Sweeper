@@ -113,7 +113,8 @@
             android:layout_gravity="end|center"
             android:layout_marginEnd="10dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/icon_right" />
+            android:src="@drawable/icon_right"
+            app:tint="?attr/textColorAlertDialogListItem" />
 
     </androidx.cardview.widget.CardView>
 

@@ -14,6 +14,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.gallerysweeper.adapters.DeleteAdapter
 import com.example.gallerysweeper.data.MediaItem
 import com.example.gallerysweeper.data.MonthGroup
 import com.example.gallerysweeper.data.YearGroup
@@ -49,6 +50,31 @@ class MainViewModel(): ViewModel() {
 
     private val _groupedType = MutableLiveData<String>()
     val groupedType: LiveData<String> get() = _groupedType
+
+    private val _checkedItemsToDelete = MutableLiveData<Set<MediaItem>>(setOf())
+    val checkedItemsToDelete: LiveData<Set<MediaItem>> = _checkedItemsToDelete
+
+    private val _deletionComplete = MutableLiveData<Boolean>()
+    val deletionComplete: LiveData<Boolean> get() = _deletionComplete
+
+    fun setDeletionCompleteValue(value: Boolean){
+        _deletionComplete.value = value
+    }
+
+
+    fun setCheckedItemToDelete(list: MutableSet<MediaItem>) {
+        _checkedItemsToDelete.postValue(list)
+    }
+
+    fun removeCheckedItemToDelete(item: MediaItem) {
+        val currentSet = _checkedItemsToDelete.value ?: setOf()
+        _checkedItemsToDelete.value = currentSet - item
+    }
+
+    fun clearCheckedItemsToDelete() {
+        _checkedItemsToDelete.value = setOf()
+    }
+
 
     fun updateGroupedTypeValue(type:String){
         _groupedType.value = type
@@ -193,16 +219,23 @@ class MainViewModel(): ViewModel() {
 
     }
 
-    fun deleteMediaItems(context: Context, groupType: String) {
+    fun deleteMediaItems(context: Context, groupType: String, deleteChecked: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             val contentResolver = context.contentResolver
-            val itemsToDelete = _itemsToDelete.value ?: return@launch
+            val itemsToDelete = if (deleteChecked) {
+                _checkedItemsToDelete.value ?: setOf()
+            } else {
+                _itemsToDelete.value ?: listOf()
+            }
+
+            val deletedItems = mutableListOf<MediaItem>()
 
             itemsToDelete.forEach { mediaItem ->
                 try {
                     val rowsDeleted = contentResolver.delete(mediaItem.uri, null, null)
                     if (rowsDeleted > 0) {
                         Log.d("MainViewModel", "Deleted: ${mediaItem.uri}")
+                        deletedItems.add(mediaItem)
                     } else {
                         Log.d("MainViewModel", "Failed to delete: ${mediaItem.uri}")
                     }
@@ -212,17 +245,62 @@ class MainViewModel(): ViewModel() {
                 }
             }
 
-            val remainingItems = _allMediaItems.value?.filter { it !in itemsToDelete } ?: listOf()
+            val remainingItems = _allMediaItems.value?.filter { it !in deletedItems } ?: listOf()
+
             withContext(Dispatchers.Main) {
                 _allMediaItems.value = remainingItems
                 _allPhotos.value = remainingItems.filter { !it.isVideo && !isScreenshot(it.name) }
                 _allVideos.value = remainingItems.filter { it.isVideo }
                 _allScreenshots.value = remainingItems.filter { isScreenshot(it.name) }
-                _itemsToDelete.value = listOf() // Clear the delete list
+
+                if (deleteChecked) {
+                    val updatedCheckedItems = (_checkedItemsToDelete.value ?: setOf()) - deletedItems.toSet()
+                    _checkedItemsToDelete.value = updatedCheckedItems
+
+                    val updatedItemsToDelete = (_itemsToDelete.value ?: listOf()) - deletedItems
+                    _itemsToDelete.value = updatedItemsToDelete
+                } else {
+                    val updatedItemsToDelete = (_itemsToDelete.value ?: listOf()) - deletedItems
+                    _itemsToDelete.value = updatedItemsToDelete
+                }
+
+                _deletionComplete.value = true
                 updateGroupedMediaItems(groupType)
             }
         }
     }
+
+
+//    fun deleteMediaItems(context: Context, groupType: String) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val contentResolver = context.contentResolver
+//            val itemsToDelete = _itemsToDelete.value ?: return@launch
+//
+//            itemsToDelete.forEach { mediaItem ->
+//                try {
+//                    val rowsDeleted = contentResolver.delete(mediaItem.uri, null, null)
+//                    if (rowsDeleted > 0) {
+//                        Log.d("MainViewModel", "Deleted: ${mediaItem.uri}")
+//                    } else {
+//                        Log.d("MainViewModel", "Failed to delete: ${mediaItem.uri}")
+//                    }
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                    Log.e("MainViewModel", "Error deleting: ${mediaItem.uri}")
+//                }
+//            }
+//
+//            val remainingItems = _allMediaItems.value?.filter { it !in itemsToDelete } ?: listOf()
+//            withContext(Dispatchers.Main) {
+//                _allMediaItems.value = remainingItems
+//                _allPhotos.value = remainingItems.filter { !it.isVideo && !isScreenshot(it.name) }
+//                _allVideos.value = remainingItems.filter { it.isVideo }
+//                _allScreenshots.value = remainingItems.filter { isScreenshot(it.name) }
+//                _itemsToDelete.value = listOf() // Clear the delete list
+//                updateGroupedMediaItems(groupType)
+//            }
+//        }
+//    }
 
 
     fun getMediaItemsByYearAndMonth(mediaItems: List<MediaItem>): List<YearGroup> {

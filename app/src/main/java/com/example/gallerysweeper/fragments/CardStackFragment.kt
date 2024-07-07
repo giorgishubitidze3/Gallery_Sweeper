@@ -180,13 +180,18 @@ class CardStackFragment : Fragment() {
         }
     }
 
-    private fun initializeFirstVideo() {
+    private fun initializeFirstVideo(position : Int = 0) {
         if (adapter.itemCount > 0) {
             val firstHolder = cardStackView.findViewHolderForAdapterPosition(0)
             if (firstHolder != null) {
                 adapter.initializeVideoIfNeeded(firstHolder, 0)
-            }
+            }else {
+
+                cardStackView.post {
+                    initializeFirstVideo(position)
+                }
         }
+    }
     }
 
     override fun onResume() {
@@ -221,6 +226,11 @@ class CardStackFragment : Fragment() {
             }
             }
 
+        viewModel.currentCardPosition.value?.let { position ->
+            cardStackView.post {
+                initializeFirstVideo(position)
+            }
+        }
             updateVisibleVideos()
 
 
