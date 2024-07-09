@@ -7,11 +7,15 @@ import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.Manifest.permission.READ_MEDIA_VIDEO
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -22,14 +26,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var sharedPrefs: SharedPreferences
-    private val permissionGrantedKey = "read_media_images_granted"
-
-
+    private val permissionGrantedKey = "media_permissions_granted"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,13 +42,15 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            if(permissions.all { it.value }) {
+            if (permissions.all { it.value }) {
                 sharedPrefs.edit().putBoolean(permissionGrantedKey, true).apply()
                 viewModel.givePermissionRead()
                 Log.d("MainActivityDebug", "Permissions granted")
+                checkManageExternalStoragePermission() // Add this line
             } else {
                 Log.d("MainActivityDebug", "Permissions not granted")
                 viewModel.takePermissionRead()
+                showPermissionExplanationDialog()
             }
         }
 
@@ -55,13 +60,19 @@ class MainActivity : AppCompatActivity() {
     private fun checkAndRequestPermissions() {
         val permissionsToRequest = when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
-                arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE)
+                arrayOf(
+                   READ_MEDIA_IMAGES,
+                   READ_MEDIA_VIDEO
+                )
             }
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                arrayOf(MANAGE_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
-            }
+//            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+//                arrayOf(READ_EXTERNAL_STORAGE)
+//            }
             else -> {
-                arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE)
+                arrayOf(
+                    READ_EXTERNAL_STORAGE,
+                    WRITE_EXTERNAL_STORAGE
+                )
             }
         }
 
@@ -69,12 +80,34 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
         }
 
-        if(allPermissionsGranted) {
+        if (allPermissionsGranted) {
             viewModel.givePermissionRead()
             Log.d("MainActivityDebug", "All permissions already granted")
         } else {
             requestPermissionLauncher.launch(permissionsToRequest)
-            Log.d("MainActivityDebug", "All permissions not granted but asking now.")
+            Log.d("MainActivityDebug", "Requesting permissions")
+        }
+    }
+
+    private fun showPermissionExplanationDialog() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri = Uri.fromParts("package", packageName, null)
+        intent.data = uri
+        startActivity(intent)
+    }
+
+    private fun checkManageExternalStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                val uri = Uri.fromParts("package", packageName, null)
+                intent.data = uri
+                startActivity(intent)
+            } else {
+                viewModel.getMediaItems(this)
+            }
+        } else {
+            viewModel.getMediaItems(this)
         }
     }
 }

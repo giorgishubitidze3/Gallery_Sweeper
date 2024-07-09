@@ -14,6 +14,7 @@ import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.gallerysweeper.MainViewModel
@@ -50,80 +51,55 @@ class HomeFragment : Fragment() {
             if (state) {
                 binding.cardViewWarning.visibility = View.GONE
 
-                viewModel.getMediaItems(requireContext())
+                // Load media items if not already loaded
+                if (viewModel.allMediaItems.value.isNullOrEmpty()) {
+                    viewModel.getMediaItems(requireContext())
+                }
 
-                viewModel.allMediaItems.observe(viewLifecycleOwner){list ->
+                viewModel.allMediaItems.observe(viewLifecycleOwner){ list ->
                     val totalItems = list.size
                     val totalSizeBytes = list.sumOf { it.size }
-                    val totalSizeGB = totalSizeBytes?.let { viewModel.bytesToGB(it) }
-
-//                    viewModel.updateGroupedMediaItems()
+                    val totalSizeGB = totalSizeBytes.let { viewModel.bytesToGB(it) }
 
                     binding.tvTotalItemCount.text = "Total items: $totalItems"
                     binding.tvTotalItemsSize.text = "%.2f GB".format(totalSizeGB)
                 }
 
-                viewModel.allPhotos.observe(viewLifecycleOwner){list ->
+                viewModel.allPhotos.observe(viewLifecycleOwner) { list ->
                     binding.tvPhotosCount.text = list.size.toString()
-                    Glide.with(requireContext())
-                        .load(list[0].uri)
-                        .into(binding.imgPhotos)
+                    if (list.isNotEmpty()) {
+                        Glide.with(requireContext())
+                            .load(list[0].uri)
+                            .into(binding.imgPhotos)
+                    }
                 }
 
-                viewModel.allVideos.observe(viewLifecycleOwner){list ->
+                viewModel.allVideos.observe(viewLifecycleOwner) { list ->
                     binding.tvVideosCount.text = list.size.toString()
-
-                    Glide.with(requireContext())
-                        .load(list[0].uri)
-                        .into(binding.imgVideos)
-
-
+                    if (list.isNotEmpty()) {
+                        Glide.with(requireContext())
+                            .load(list[0].uri)
+                            .into(binding.imgVideos)
+                    }
                 }
 
-                viewModel.allScreenshots.observe(viewLifecycleOwner){list ->
+                viewModel.allScreenshots.observe(viewLifecycleOwner) { list ->
                     binding.tvScreenshotsCount.text = list.size.toString()
-
-                    Glide.with(requireContext())
-                        .load(list[0].uri)
-                        .into(binding.imgScreenshots)
-
+                    if (list.isNotEmpty()) {
+                        Glide.with(requireContext())
+                            .load(list[0].uri)
+                            .into(binding.imgScreenshots)
+                    }
                 }
 
-
+                setupCardViewListeners(navController)
             }
-
-
-
-                binding.cardViewAllMedia.setOnClickListener {
-                    viewModel.updateGroupedTypeValue("AllMedia")
-                    navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
-                    viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
-                }
-
-                binding.cardViewPhotos.setOnClickListener {
-                    viewModel.updateGroupedTypeValue("AllPhotos")
-                    navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
-                    viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
-                }
-
-                binding.cardViewVideos.setOnClickListener {
-                    viewModel.updateGroupedTypeValue("AllVideos")
-                    navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
-                    viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
-                }
-
-                binding.cardViewScreenshots.setOnClickListener {
-                    viewModel.updateGroupedTypeValue("AllScreenshots")
-                    navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
-                    viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
-                }
-
         }
     }
 
     private fun checkPermissions() {
-        val hasPermission = when{
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->{
+        val hasPermission = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
                 ContextCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.READ_MEDIA_IMAGES
@@ -133,34 +109,59 @@ class HomeFragment : Fragment() {
                             requireContext(),
                             Manifest.permission.READ_MEDIA_VIDEO
                         ) == PackageManager.PERMISSION_GRANTED
-                        &&
-                        ContextCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.MANAGE_EXTERNAL_STORAGE
-                        ) == PackageManager.PERMISSION_GRANTED
+//                        &&
+//                        ContextCompat.checkSelfPermission(
+//                            requireContext(),
+//                            Manifest.permission.MANAGE_EXTERNAL_STORAGE
+//                        ) == PackageManager.PERMISSION_GRANTED
             }
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                ContextCompat.checkSelfPermission(
-                        requireContext(),
-                    Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                        &&
-                        ContextCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.MANAGE_EXTERNAL_STORAGE
-                        ) == PackageManager.PERMISSION_GRANTED
-            }
+//            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+//                ContextCompat.checkSelfPermission(
+//                    requireContext(),
+//                    Manifest.permission.READ_EXTERNAL_STORAGE
+//                ) == PackageManager.PERMISSION_GRANTED
+//                        &&
+//                        ContextCompat.checkSelfPermission(
+//                            requireContext(),
+//                            Manifest.permission.MANAGE_EXTERNAL_STORAGE
+//                        ) == PackageManager.PERMISSION_GRANTED
+//            }
             else -> {
                 ContextCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.READ_EXTERNAL_STORAGE
                 ) == PackageManager.PERMISSION_GRANTED
-
             }
         }
 
         viewModel.setPermissionState(hasPermission)
     }
 
+    private fun setupCardViewListeners(navController: NavController?) {
+        binding.cardViewAllMedia.setOnClickListener {
+            viewModel.updateGroupedTypeValue("AllMedia")
+            navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
+            viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
+        }
+
+        binding.cardViewPhotos.setOnClickListener {
+            viewModel.updateGroupedTypeValue("AllPhotos")
+            navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
+            viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
+        }
+
+        binding.cardViewVideos.setOnClickListener {
+            viewModel.updateGroupedTypeValue("AllVideos")
+            navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
+            viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
+        }
+
+        binding.cardViewScreenshots.setOnClickListener {
+            viewModel.updateGroupedTypeValue("AllScreenshots")
+            navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
+            viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
+        }
+    }
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -171,7 +172,13 @@ class HomeFragment : Fragment() {
             }
         }
 
+    override fun onResume() {
+        super.onResume()
 
-
+        Log.d("HomeFragmentDebug","${viewModel.allMediaItems.value?.size ?: "this is null"} size of allMediaItems")
+    }
 }
+
+
+
 

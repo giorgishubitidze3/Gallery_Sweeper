@@ -129,51 +129,39 @@ class MainViewModel(): ViewModel() {
         _permissionStateRead.value = state
     }
 
-
     fun getMediaItems(context: Context) {
-        viewModelScope.launch (Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             val allMediaItems = mutableListOf<MediaItem>()
             val photoItems = mutableListOf<MediaItem>()
             val videoItems = mutableListOf<MediaItem>()
             val screenshotItems = mutableListOf<MediaItem>()
 
             val projection = arrayOf(
-             MediaStore.MediaColumns._ID,
-             MediaStore.MediaColumns.DISPLAY_NAME,
-             MediaStore.MediaColumns.SIZE,
-             MediaStore.MediaColumns.DATE_ADDED,
-             MediaStore.MediaColumns.MIME_TYPE
+                MediaStore.MediaColumns._ID,
+                MediaStore.MediaColumns.DISPLAY_NAME,
+                MediaStore.MediaColumns.SIZE,
+                MediaStore.MediaColumns.DATE_ADDED,
+                MediaStore.MediaColumns.MIME_TYPE,
+                MediaStore.MediaColumns.RELATIVE_PATH
             )
 
-
-            val selection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ? OR ${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?"
-         } else {
-                "${MediaStore.MediaColumns.DATA} LIKE ? OR ${MediaStore.MediaColumns.DATA} LIKE ?"
-            }
-
-         val selectionArgs = arrayOf(
-              "%DCIM%",
-             "%Download%"
-         )
-
-         val imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            val imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             val videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
 
             listOf(imageUri, videoUri).forEach { uri ->
-                context?.contentResolver?.query(
+                context.contentResolver.query(
                     uri,
                     projection,
-                    selection,
-                    selectionArgs,
+                    null,
+                    null,
                     "${MediaStore.MediaColumns.DATE_ADDED} DESC"
                 )?.use { cursor ->
                     val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                     val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
                     val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
-                    val dateAddedColumn =
-                        cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
+                    val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
                     val mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
+                    val relativePathColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
 
                     while (cursor.moveToNext()) {
                         val id = cursor.getLong(idColumn)
@@ -181,43 +169,144 @@ class MainViewModel(): ViewModel() {
                         val size = cursor.getLong(sizeColumn)
                         val dateAdded = cursor.getLong(dateAddedColumn)
                         val mimeType = cursor.getString(mimeTypeColumn)
+                        val relativePath = cursor.getString(relativePathColumn)
 
-                        val contentUri = ContentUris.withAppendedId(
-                            if (mimeType.startsWith("video")) videoUri else imageUri,
-                            id
-                        )
+                        val contentUri = ContentUris.withAppendedId(uri, id)
 
-                        val mediaItem = MediaItem(
-                            id = id,
-                            uri = contentUri,
-                            name = name,
-                            size = size,
-                            dateAdded = dateAdded,
-                            isVideo = mimeType.startsWith("video")
-                        )
+                        if (relativePath.contains("DCIM") ||
+                            relativePath.contains("Pictures") ||
+                            relativePath.contains("Download") ||
+                            relativePath.contains("Movies")) {
 
-                        allMediaItems.add(mediaItem)
+                            val mediaItem = MediaItem(
+                                id = id,
+                                uri = contentUri,
+                                name = name,
+                                size = size,
+                                dateAdded = dateAdded,
+                                isVideo = mimeType.startsWith("video")
+                            )
 
-                        when{
-                            mediaItem.isVideo -> videoItems.add(mediaItem)
-                            isScreenshot(mediaItem.name) -> screenshotItems.add(mediaItem)
-                            else -> photoItems.add(mediaItem)
+                            allMediaItems.add(mediaItem)
+
+                            when {
+                                mediaItem.isVideo -> videoItems.add(mediaItem)
+                                isScreenshot(mediaItem.name) -> screenshotItems.add(mediaItem)
+                                else -> photoItems.add(mediaItem)
+                            }
                         }
                     }
                 }
-        }
+            }
 
-
-             withContext(Dispatchers.Main) {
-                 _allMediaItems.value = allMediaItems
-                 _allPhotos.value = photoItems
-                 _allVideos.value = videoItems
-                 _allScreenshots.value = screenshotItems
+            withContext(Dispatchers.Main) {
+                _allMediaItems.value = allMediaItems
+                _allPhotos.value = photoItems
+                _allVideos.value = videoItems
+                _allScreenshots.value = screenshotItems
             }
         }
-
-
     }
+
+//    fun getMediaItems(context: Context) {
+//        viewModelScope.launch (Dispatchers.IO){
+//            val allMediaItems = mutableListOf<MediaItem>()
+//            val photoItems = mutableListOf<MediaItem>()
+//            val videoItems = mutableListOf<MediaItem>()
+//            val screenshotItems = mutableListOf<MediaItem>()
+//
+//            val projection = arrayOf(
+//             MediaStore.MediaColumns._ID,
+//             MediaStore.MediaColumns.DISPLAY_NAME,
+//             MediaStore.MediaColumns.SIZE,
+//             MediaStore.MediaColumns.DATE_ADDED,
+//             MediaStore.MediaColumns.MIME_TYPE
+//            )
+//
+//
+//            val selection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ? OR ${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?"
+//         } else {
+//                "${MediaStore.MediaColumns.DATA} LIKE ? OR ${MediaStore.MediaColumns.DATA} LIKE ?"
+//            }
+//
+//            val selectionArgs = arrayOf(
+//                "%DCIM%",
+//                "%Pictures%",
+//                "%Download%",
+//                "%Movies%"
+//            )
+//
+//            val imageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+//            } else {
+//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+//            }
+//
+//            val videoUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+//            } else {
+//                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+//            }
+//
+//            listOf(imageUri, videoUri).forEach { uri ->
+//                context.contentResolver.query(
+//                    uri,
+//                    projection,
+//                    selection,
+//                    selectionArgs,
+//                    "${MediaStore.MediaColumns.DATE_ADDED} DESC"
+//                )?.use { cursor ->
+//                    val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+//                    val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+//                    val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
+//                    val dateAddedColumn =
+//                        cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
+//                    val mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
+//
+//                    while (cursor.moveToNext()) {
+//                        val id = cursor.getLong(idColumn)
+//                        val name = cursor.getString(nameColumn)
+//                        val size = cursor.getLong(sizeColumn)
+//                        val dateAdded = cursor.getLong(dateAddedColumn)
+//                        val mimeType = cursor.getString(mimeTypeColumn)
+//
+//                        val contentUri = ContentUris.withAppendedId(
+//                            if (mimeType.startsWith("video")) videoUri else imageUri,
+//                            id
+//                        )
+//
+//                        val mediaItem = MediaItem(
+//                            id = id,
+//                            uri = contentUri,
+//                            name = name,
+//                            size = size,
+//                            dateAdded = dateAdded,
+//                            isVideo = mimeType.startsWith("video")
+//                        )
+//
+//                        allMediaItems.add(mediaItem)
+//
+//                        when{
+//                            mediaItem.isVideo -> videoItems.add(mediaItem)
+//                            isScreenshot(mediaItem.name) -> screenshotItems.add(mediaItem)
+//                            else -> photoItems.add(mediaItem)
+//                        }
+//                    }
+//                }
+//        }
+//
+//
+//             withContext(Dispatchers.Main) {
+//                 _allMediaItems.value = allMediaItems
+//                 _allPhotos.value = photoItems
+//                 _allVideos.value = videoItems
+//                 _allScreenshots.value = screenshotItems
+//            }
+//        }
+//
+//
+//    }
 
     fun deleteMediaItems(context: Context, groupType: String, deleteChecked: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -271,37 +360,6 @@ class MainViewModel(): ViewModel() {
     }
 
 
-//    fun deleteMediaItems(context: Context, groupType: String) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val contentResolver = context.contentResolver
-//            val itemsToDelete = _itemsToDelete.value ?: return@launch
-//
-//            itemsToDelete.forEach { mediaItem ->
-//                try {
-//                    val rowsDeleted = contentResolver.delete(mediaItem.uri, null, null)
-//                    if (rowsDeleted > 0) {
-//                        Log.d("MainViewModel", "Deleted: ${mediaItem.uri}")
-//                    } else {
-//                        Log.d("MainViewModel", "Failed to delete: ${mediaItem.uri}")
-//                    }
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                    Log.e("MainViewModel", "Error deleting: ${mediaItem.uri}")
-//                }
-//            }
-//
-//            val remainingItems = _allMediaItems.value?.filter { it !in itemsToDelete } ?: listOf()
-//            withContext(Dispatchers.Main) {
-//                _allMediaItems.value = remainingItems
-//                _allPhotos.value = remainingItems.filter { !it.isVideo && !isScreenshot(it.name) }
-//                _allVideos.value = remainingItems.filter { it.isVideo }
-//                _allScreenshots.value = remainingItems.filter { isScreenshot(it.name) }
-//                _itemsToDelete.value = listOf() // Clear the delete list
-//                updateGroupedMediaItems(groupType)
-//            }
-//        }
-//    }
-
 
     fun getMediaItemsByYearAndMonth(mediaItems: List<MediaItem>): List<YearGroup> {
         return mediaItems.groupBy { item ->
@@ -343,7 +401,6 @@ class MainViewModel(): ViewModel() {
 
 
     private fun isScreenshot(fileName: String): Boolean {
-        //todo check later how to find screenshots
         return fileName.lowercase().contains("screenshot")
     }
 
