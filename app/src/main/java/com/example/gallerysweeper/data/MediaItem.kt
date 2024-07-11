@@ -11,5 +11,6 @@ data class MediaItem(
     val name : String,
     val size : Long,
     val dateAdded : Long,
-    val isVideo : Boolean
+    val isVideo : Boolean,
+    val relativePath: String
 ): Parcelable

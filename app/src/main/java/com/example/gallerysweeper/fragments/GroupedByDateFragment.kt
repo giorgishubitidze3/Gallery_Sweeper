@@ -35,15 +35,14 @@ class GroupedByDateFragment : Fragment() {
         val viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
 
         val recyclerView = binding.recyclerViewAllItems
-        val adapter = navController?.let { AllMediaAdapter(it) }
+
+        val adapter = navController?.let { AllMediaAdapter(it, requireContext()) }
 
         viewModel.groupedMediaItems.observe(viewLifecycleOwner){list ->
             adapter?.setData(list)
         }
 
         recyclerView.adapter = adapter
-
-
 
     }
 

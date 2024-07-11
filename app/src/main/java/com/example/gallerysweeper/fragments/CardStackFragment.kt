@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gallerysweeper.MainViewModel
 import com.example.gallerysweeper.R
 import com.example.gallerysweeper.adapters.CardViewAdapter
-import com.example.gallerysweeper.data.MonthGroup
+import com.example.gallerysweeper.data.AlbumGroup
 import com.example.gallerysweeper.databinding.FragmentCardStackBinding
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager
 import com.yuyakaido.android.cardstackview.CardStackListener
@@ -45,7 +45,7 @@ class CardStackFragment : Fragment() {
         viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         val navController = activity?.findNavController(R.id.fragment_container)
 
-        val selectedFiles: MonthGroup? = arguments?.getParcelable("selectedMonth")
+        val selectedFiles: AlbumGroup? = arguments?.getParcelable("selectedMonth")
         selectedFiles?.let {
             Toast.makeText(requireContext(), "Size of the data: ${it.items.size}", Toast.LENGTH_SHORT).show()
         } ?: run {
@@ -198,13 +198,14 @@ class CardStackFragment : Fragment() {
         super.onResume()
 
 
-        val selectedFiles = arguments?.getParcelable<MonthGroup>("selectedMonth")
-        selectedFiles?.let { monthGroup ->
-            val updatedItems = monthGroup.items.filter { item ->
+        //TODO fix this for AlbumGroup
+        val selectedFiles = arguments?.getParcelable<AlbumGroup>("selectedMonth")
+        selectedFiles?.let { AlbumGroup ->
+            val updatedItems = AlbumGroup.items.filter { item ->
                 viewModel.allMediaItems.value?.contains(item) ?: false
             }
 
-            if (updatedItems.size != monthGroup.items.size) {
+            if (updatedItems.size != AlbumGroup.items.size) {
                 adapter.setData(updatedItems)
                 adapter.notifyDataSetChanged()
 
@@ -215,7 +216,7 @@ class CardStackFragment : Fragment() {
                 else{
                     viewModel.currentCardPosition.value?.let { layoutManager.scrollToPosition(it) }
                 }
-                val updatedMonthGroup = MonthGroup(monthGroup.month, updatedItems)
+                val updatedMonthGroup = AlbumGroup(AlbumGroup.name, updatedItems)
                 arguments?.putParcelable("selectedMonth", updatedMonthGroup)
 
                 Toast.makeText(

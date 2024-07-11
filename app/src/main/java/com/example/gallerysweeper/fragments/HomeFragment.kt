@@ -56,7 +56,7 @@ class HomeFragment : Fragment() {
                     viewModel.getMediaItems(requireContext())
                 }
 
-                viewModel.allMediaItems.observe(viewLifecycleOwner){ list ->
+                viewModel.allMediaItems.observe(viewLifecycleOwner) { list ->
                     val totalItems = list.size
                     val totalSizeBytes = list.sumOf { it.size }
                     val totalSizeGB = totalSizeBytes.let { viewModel.bytesToGB(it) }
@@ -103,29 +103,12 @@ class HomeFragment : Fragment() {
                 ContextCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.READ_MEDIA_IMAGES
-                ) == PackageManager.PERMISSION_GRANTED
-                        &&
+                ) == PackageManager.PERMISSION_GRANTED &&
                         ContextCompat.checkSelfPermission(
                             requireContext(),
                             Manifest.permission.READ_MEDIA_VIDEO
                         ) == PackageManager.PERMISSION_GRANTED
-//                        &&
-//                        ContextCompat.checkSelfPermission(
-//                            requireContext(),
-//                            Manifest.permission.MANAGE_EXTERNAL_STORAGE
-//                        ) == PackageManager.PERMISSION_GRANTED
             }
-//            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-//                ContextCompat.checkSelfPermission(
-//                    requireContext(),
-//                    Manifest.permission.READ_EXTERNAL_STORAGE
-//                ) == PackageManager.PERMISSION_GRANTED
-//                        &&
-//                        ContextCompat.checkSelfPermission(
-//                            requireContext(),
-//                            Manifest.permission.MANAGE_EXTERNAL_STORAGE
-//                        ) == PackageManager.PERMISSION_GRANTED
-//            }
             else -> {
                 ContextCompat.checkSelfPermission(
                     requireContext(),
@@ -146,8 +129,8 @@ class HomeFragment : Fragment() {
 
         binding.cardViewPhotos.setOnClickListener {
             viewModel.updateGroupedTypeValue("AllPhotos")
+            viewModel.updateGroupedMediaItems("AllPhotos")
             navController?.navigate(R.id.action_homeFragment_to_allMediaFragment)
-            viewModel.groupedType.value?.let { it1 -> viewModel.updateGroupedMediaItems(it1) }
         }
 
         binding.cardViewVideos.setOnClickListener {
@@ -175,7 +158,7 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        Log.d("HomeFragmentDebug","${viewModel.allMediaItems.value?.size ?: "this is null"} size of allMediaItems")
+        Log.d("HomeFragmentDebug", "${viewModel.allMediaItems.value?.size ?: "this is null"} size of allMediaItems")
     }
 }
 

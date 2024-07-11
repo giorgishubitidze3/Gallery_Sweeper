@@ -8,8 +8,9 @@
 
 <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/recycler_view_all_items"
-    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:layout_height="match_parent"
+    tools:listitem="@layout/rv_item_albums"/>
 
 </FrameLayout>
