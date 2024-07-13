@@ -16,11 +16,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Visibility
 import com.bumptech.glide.Glide
+import com.example.gallerysweeper.MainViewModel
 import com.example.gallerysweeper.R
 import com.example.gallerysweeper.data.MediaItem
 import java.util.concurrent.TimeUnit
 
-class DeleteAdapter(val context: Context): RecyclerView.Adapter<DeleteAdapter.ViewHolder>() {
+class DeleteAdapter(private val context: Context): RecyclerView.Adapter<DeleteAdapter.ViewHolder>() {
 
     var list : List<MediaItem> = listOf()
     private val checkedItemList = MutableLiveData<MutableSet<MediaItem>>(mutableSetOf())
@@ -68,6 +69,8 @@ class DeleteAdapter(val context: Context): RecyclerView.Adapter<DeleteAdapter.Vi
         Glide.with(holder.img.context)
             .load(currentItem.uri)
             .into(holder.img)
+
+    
     }
 
     fun getCheckedItems(): LiveData<MutableSet<MediaItem>> {

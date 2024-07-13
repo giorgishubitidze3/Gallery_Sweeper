@@ -1,6 +1,7 @@
 package com.example.gallerysweeper.adapters
 
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -46,7 +47,10 @@ class AllMediaAdapter(private val navController: NavController, private val cont
         holder.count.text = currentItem.items.size.toString()
 
         holder.itemView.setOnClickListener{
-            Toast.makeText(context,"Clicked ${holder.count}",Toast.LENGTH_SHORT).show()
+            val args = Bundle().apply{
+                putParcelable("selectedAlbum", currentItem)
+            }
+            navController.navigate(R.id.action_allMediaFragment_to_cardStackFragment, args)
         }
     }
 

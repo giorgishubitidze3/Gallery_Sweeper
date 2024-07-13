@@ -45,7 +45,7 @@ class CardStackFragment : Fragment() {
         viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         val navController = activity?.findNavController(R.id.fragment_container)
 
-        val selectedFiles: AlbumGroup? = arguments?.getParcelable("selectedMonth")
+        val selectedFiles: AlbumGroup? = arguments?.getParcelable("selectedAlbum")
         selectedFiles?.let {
             Toast.makeText(requireContext(), "Size of the data: ${it.items.size}", Toast.LENGTH_SHORT).show()
         } ?: run {
@@ -190,16 +190,16 @@ class CardStackFragment : Fragment() {
                 cardStackView.post {
                     initializeFirstVideo(position)
                 }
+            }
         }
-    }
     }
 
     override fun onResume() {
         super.onResume()
 
 
-        //TODO fix this for AlbumGroup
-        val selectedFiles = arguments?.getParcelable<AlbumGroup>("selectedMonth")
+
+        val selectedFiles = arguments?.getParcelable<AlbumGroup>("selectedAlbum")
         selectedFiles?.let { AlbumGroup ->
             val updatedItems = AlbumGroup.items.filter { item ->
                 viewModel.allMediaItems.value?.contains(item) ?: false
@@ -225,14 +225,14 @@ class CardStackFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            }
+        }
 
         viewModel.currentCardPosition.value?.let { position ->
             cardStackView.post {
                 initializeFirstVideo(position)
             }
         }
-            updateVisibleVideos()
+        updateVisibleVideos()
 
 
     }

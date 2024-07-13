@@ -100,11 +100,10 @@ class CardViewAdapter(private val context: Context) : RecyclerView.Adapter<Recyc
             }
             is VideoViewHolder -> {
                 holder.playerView.visibility = View.VISIBLE
-                }
-
-
             }
         }
+
+    }
 
 
 

@@ -56,6 +56,12 @@ class MainViewModel : ViewModel() {
     private val _allScreenshots = MutableLiveData<List<MediaItem>>()
     val allScreenshots: LiveData<List<MediaItem>> get() = _allScreenshots
 
+    val holdValue = MutableLiveData<Boolean>(false)
+
+
+    fun setHoldValue(value: Boolean){
+        holdValue.value = value
+    }
     fun setDeletionCompleteValue(value: Boolean) {
         _deletionComplete.value = value
     }
@@ -241,6 +247,9 @@ class MainViewModel : ViewModel() {
 
             withContext(Dispatchers.Main) {
                 _allMediaItems.value = remainingItems
+
+                _itemsToDelete.value = _itemsToDelete.value?.filter { it !in deletedItems }
+
                 _deletionComplete.value = true
                 updateGroupedMediaItems(groupType)
             }

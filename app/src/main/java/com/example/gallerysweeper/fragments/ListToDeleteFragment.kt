@@ -23,7 +23,6 @@ class ListToDeleteFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
 
         binding = FragmentListToDeleteBinding.inflate(inflater,container,false)
         return binding.root
@@ -72,19 +71,20 @@ class ListToDeleteFragment : Fragment() {
         }
         viewModel.deletionComplete.observe(viewLifecycleOwner) { isComplete ->
             if (isComplete) {
-                // Clear checked items in the adapter
+
                 adapter.clearCheckedItems()
                 updateRestoreButtonVisibility(mutableSetOf<MediaItem>())
+                checkedItems = emptySet()
 
-                // Reset the deletion complete state
+                viewModel.itemsToDelete.value?.let { updatedList ->
+                    adapter.setData(updatedList)
+                }
+
                 viewModel.setDeletionCompleteValue(false)
             }
         }
 
-
     }
-
-
 
     private fun updateRestoreButtonVisibility(checkedItems: MutableSet<com.example.gallerysweeper.data.MediaItem>?) {
         binding.btnRestore.visibility = if (checkedItems.isNullOrEmpty()) View.GONE else View.VISIBLE
@@ -94,6 +94,4 @@ class ListToDeleteFragment : Fragment() {
             binding.btnClean.text = "Clean"
         }
     }
-
-
 }
