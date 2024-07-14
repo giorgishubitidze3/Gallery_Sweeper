@@ -1,6 +1,8 @@
 package com.example.gallerysweeper.fragments
 
+import android.os.Build.VERSION_CODES.P
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -36,7 +38,7 @@ class ListToDeleteFragment : Fragment() {
 
          viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
 
-        val adapter = DeleteAdapter(requireContext())
+        val adapter = DeleteAdapter(requireContext(),viewModel,viewLifecycleOwner)
 
         viewModel.itemsToDelete.observe(viewLifecycleOwner){list ->
             adapter.setData(list)
@@ -50,6 +52,13 @@ class ListToDeleteFragment : Fragment() {
             updateRestoreButtonVisibility(checkedItems)
             viewModel.setCheckedItemToDelete(checkedItems)
             this.checkedItems = checkedItems
+            if(viewModel.selectionMode.value == true){
+                if(!checkedItems.isNullOrEmpty()){
+                    binding.tvToolSelectedCount.text = "Selected: ${checkedItems.size}"
+                }else{
+                    binding.tvToolSelectedCount.text = "Selected: 0"
+                }
+            }
         }
 
         binding.btnRestore.setOnClickListener {
@@ -84,6 +93,25 @@ class ListToDeleteFragment : Fragment() {
             }
         }
 
+        binding.btnToolCancel.setOnClickListener {
+            viewModel.setSelectionMode(false)
+            viewModel.setCheckedItemToDelete(mutableSetOf<MediaItem>())
+            adapter.clearCheckedItems()
+        }
+
+        binding.btnToolSelectAll.setOnClickListener{
+            adapter.checkAllItems()
+            Log.d("ListToDeleteFragmentDebug","${viewModel.checkedItemsToDelete.value?.size}")
+        }
+
+        viewModel.selectionMode.observe(viewLifecycleOwner){selectionMode ->
+            if(selectionMode){
+                binding.toolbar.visibility= View.VISIBLE
+            }else{
+                binding.toolbar.visibility= View.GONE
+            }
+        }
+
     }
 
     private fun updateRestoreButtonVisibility(checkedItems: MutableSet<com.example.gallerysweeper.data.MediaItem>?) {
@@ -91,7 +119,7 @@ class ListToDeleteFragment : Fragment() {
         if (!checkedItems.isNullOrEmpty()){
             binding.btnClean.text = "Clean [${checkedItems.size}]"
         }else{
-            binding.btnClean.text = "Clean"
+            binding.btnClean.text = "Clean all"
         }
     }
 }

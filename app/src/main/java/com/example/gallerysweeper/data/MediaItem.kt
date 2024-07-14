@@ -13,4 +13,7 @@ data class MediaItem(
     val dateAdded : Long,
     val isVideo : Boolean,
     val relativePath: String
-): Parcelable
+): Parcelable{
+    val dateAddedInMillis:Long
+        get() = dateAdded * 1000L
+}

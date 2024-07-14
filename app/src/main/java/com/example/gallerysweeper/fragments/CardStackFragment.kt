@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +16,7 @@ import com.example.gallerysweeper.R
 import com.example.gallerysweeper.adapters.CardViewAdapter
 import com.example.gallerysweeper.data.AlbumGroup
 import com.example.gallerysweeper.databinding.FragmentCardStackBinding
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager
 import com.yuyakaido.android.cardstackview.CardStackListener
 import com.yuyakaido.android.cardstackview.CardStackView
@@ -22,6 +24,13 @@ import com.yuyakaido.android.cardstackview.Direction
 import com.yuyakaido.android.cardstackview.Duration
 import com.yuyakaido.android.cardstackview.RewindAnimationSetting
 import com.yuyakaido.android.cardstackview.SwipeableMethod
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+import androidx.core.util.Pair as UtilPair
+
 
 class CardStackFragment : Fragment() {
 
@@ -30,6 +39,10 @@ class CardStackFragment : Fragment() {
     private lateinit var viewModel: MainViewModel
     private lateinit var adapter: CardViewAdapter
     private lateinit var cardStackView: CardStackView
+
+
+    private var startDate: Long = 0L
+    private var endDate: Long = 0L
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -160,7 +173,14 @@ class CardStackFragment : Fragment() {
         binding.btnDone.setOnClickListener {
             navController?.navigate(R.id.action_cardStackFragment_to_listToDeleteFragment)
         }
+
+        binding.btnCalendar.setOnClickListener {
+            showDateRangePicker()
+        }
+
     }
+
+
 
     private fun updateVisibleVideos() {
         val topPosition = layoutManager.topPosition
@@ -197,34 +217,43 @@ class CardStackFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-
-
         val selectedFiles = arguments?.getParcelable<AlbumGroup>("selectedAlbum")
-        selectedFiles?.let { AlbumGroup ->
-            val updatedItems = AlbumGroup.items.filter { item ->
-                viewModel.allMediaItems.value?.contains(item) ?: false
+        selectedFiles?.let { albumGroup ->
+            val updatedItems = if (startDate != 0L && endDate != 0L) {
+                albumGroup.items.filter { item ->
+                    item.dateAdded in startDate..endDate &&
+                            (viewModel.allMediaItems.value?.contains(item) ?: false)
+                }
+            } else {
+                albumGroup.items.filter { item ->
+                    viewModel.allMediaItems.value?.contains(item) ?: false
+                }
             }
 
-            if (updatedItems.size != AlbumGroup.items.size) {
+            if (updatedItems.isEmpty() && (startDate != 0L || endDate != 0L)) {
+                // Reset the filter if the filtered list is empty
+                startDate = 0L
+                endDate = 0L
+                adapter.setData(albumGroup.items)
+                Toast.makeText(requireContext(), "Filter reset. Showing all items.", Toast.LENGTH_SHORT).show()
+            } else if (updatedItems.size != albumGroup.items.size) {
                 adapter.setData(updatedItems)
-                adapter.notifyDataSetChanged()
-
-                if (layoutManager.topPosition >= updatedItems.size) {
-                    layoutManager.scrollToPosition(0)
-                    viewModel.resetCurrentCardPosition()
-                }
-                else{
-                    viewModel.currentCardPosition.value?.let { layoutManager.scrollToPosition(it) }
-                }
-                val updatedMonthGroup = AlbumGroup(AlbumGroup.name, updatedItems)
-                arguments?.putParcelable("selectedMonth", updatedMonthGroup)
-
-                Toast.makeText(
-                    requireContext(),
-                    "Updated. New size: ${updatedItems.size}",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
+
+            adapter.notifyDataSetChanged()
+
+            if (layoutManager.topPosition >= updatedItems.size) {
+                layoutManager.scrollToPosition(0)
+                viewModel.resetCurrentCardPosition()
+            } else {
+                viewModel.currentCardPosition.value?.let { layoutManager.scrollToPosition(it) }
+            }
+
+            val updatedAlbumGroup = AlbumGroup(albumGroup.name, updatedItems)
+            arguments?.putParcelable("selectedAlbum", updatedAlbumGroup)
+
+            Log.d("OnResumeDebug", "Updated items: ${updatedItems.size}")
+            Log.d("OnResumeDebug", "Original items: ${albumGroup.items.size}")
         }
 
         viewModel.currentCardPosition.value?.let { position ->
@@ -232,11 +261,89 @@ class CardStackFragment : Fragment() {
                 initializeFirstVideo(position)
             }
         }
+
         updateVisibleVideos()
-
-
     }
 
+    private fun showDateRangePicker() {
+        val today = MaterialDatePicker.todayInUtcMilliseconds()
+        val calendar = Calendar.getInstance(TimeZone.getDefault())
+
+        val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
+            .setTitleText("Select date range")
+            .setSelection(
+                UtilPair(
+                    today,
+                    today
+                )
+            )
+            .build()
+
+        dateRangePicker.addOnPositiveButtonClickListener { selection ->
+            Log.d("DatePickerDebug", "Raw start: ${Date(selection.first ?: today)}")
+            Log.d("DatePickerDebug", "Raw end: ${Date(selection.second ?: today)}")
+
+            // Set start date to the beginning of the selected day in device's time zone
+            calendar.timeInMillis = selection.first ?: today
+            calendar.set(Calendar.HOUR_OF_DAY, 0)
+            calendar.set(Calendar.MINUTE, 0)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
+            startDate = calendar.timeInMillis
+
+            // Set end date to the end of the selected day in device's time zone
+            calendar.timeInMillis = selection.second ?: today
+            calendar.set(Calendar.HOUR_OF_DAY, 23)
+            calendar.set(Calendar.MINUTE, 59)
+            calendar.set(Calendar.SECOND, 59)
+            calendar.set(Calendar.MILLISECOND, 999)
+            endDate = calendar.timeInMillis
+
+            Log.d("DatePickerDebug", "Adjusted start: ${Date(startDate)}")
+            Log.d("DatePickerDebug", "Adjusted end: ${Date(endDate)}")
+
+            filterMediaItems()
+        }
+
+        dateRangePicker.show(parentFragmentManager, "DATE_RANGE_PICKER")
+    }
+
+    private fun filterMediaItems() {
+        val selectedFiles = arguments?.getParcelable<AlbumGroup>("selectedAlbum")
+        selectedFiles?.let { albumGroup ->
+            val filteredItems = albumGroup.items.filter { item ->
+                val itemDate = Calendar.getInstance().apply {
+                    timeInMillis = item.dateAdded
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.timeInMillis
+                itemDate in startDate..endDate
+            }
+            adapter.setData(filteredItems)
+            adapter.notifyDataSetChanged()
+            layoutManager.scrollToPosition(0)
+            viewModel.resetCurrentCardPosition()
+
+            // Debug information
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.getDefault())
+            Log.d("FilterDebug", "Start Date: ${dateFormat.format(Date(startDate))}")
+            Log.d("FilterDebug", "End Date: ${dateFormat.format(Date(endDate))}")
+            Log.d("FilterDebug", "Filtered items: ${filteredItems.size}")
+            filteredItems.forEach {
+                Log.d("FilterDebug", "Item date: ${dateFormat.format(Date(it.dateAdded))}")
+            }
+
+            // Log all items for debugging
+            Log.d("FilterDebug", "All items: ${albumGroup.items.size}")
+            albumGroup.items.forEach {
+                Log.d("FilterDebug", "All item date: ${dateFormat.format(Date(it.dateAdded))}")
+            }
+
+            Toast.makeText(requireContext(), "Filtered items: ${filteredItems.size}", Toast.LENGTH_SHORT).show()
+        }
+    }
     override fun onPause() {
         super.onPause()
         for (i in 0 until adapter.itemCount) {

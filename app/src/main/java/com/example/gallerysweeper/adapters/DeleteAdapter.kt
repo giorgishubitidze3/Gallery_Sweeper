@@ -11,6 +11,7 @@ import android.widget.CompoundButton
 import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.TextView
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
@@ -21,10 +22,31 @@ import com.example.gallerysweeper.R
 import com.example.gallerysweeper.data.MediaItem
 import java.util.concurrent.TimeUnit
 
-class DeleteAdapter(private val context: Context): RecyclerView.Adapter<DeleteAdapter.ViewHolder>() {
+class DeleteAdapter(private val context: Context, private val viewModel: MainViewModel, private val viewLifecycleOwner: LifecycleOwner): RecyclerView.Adapter<DeleteAdapter.ViewHolder>() {
 
-    var list : List<MediaItem> = listOf()
+    private var _list: List<MediaItem> = listOf()
+    var list: List<MediaItem>
+        get() = _list
+        set(value) {
+            _list = value
+            notifyDataSetChanged() // Notify adapter of data changes
+            if (_list.isEmpty()) {
+                viewModel.setSelectionMode(false)
+            }
+        }
     private val checkedItemList = MutableLiveData<MutableSet<MediaItem>>(mutableSetOf())
+
+
+
+    init {
+        viewModel.selectionMode.observe(viewLifecycleOwner) { selectionMode ->
+            notifyDataSetChanged()
+        }
+
+        checkedItemList.observe(viewLifecycleOwner) {
+            notifyDataSetChanged()
+        }
+    }
 
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         val img = itemView.findViewById<ImageView>(R.id.img_delete_list)
@@ -66,6 +88,39 @@ class DeleteAdapter(private val context: Context): RecyclerView.Adapter<DeleteAd
             checkedItemList.value = currentCheckedSet
         }
 
+        holder.itemView.setOnLongClickListener {
+            val currentCheckedSet = checkedItemList.value ?: mutableSetOf()
+
+            if(!holder.checkBox.isChecked){
+                currentCheckedSet.add(currentItem)
+                holder.checkBox.isChecked = true
+                viewModel.setSelectionMode(true)
+            }
+
+            checkedItemList.value = currentCheckedSet
+            true
+        }
+
+
+        holder.itemView.setOnClickListener {
+            val currentCheckedSet = checkedItemList.value ?: mutableSetOf()
+
+            if (viewModel.selectionMode.value == true) {
+                if (holder.checkBox.isChecked) {
+                    currentCheckedSet.remove(currentItem)
+                    holder.checkBox.isChecked = false
+                } else {
+                    currentCheckedSet.add(currentItem)
+                    holder.checkBox.isChecked = true
+                }
+
+                checkedItemList.value = currentCheckedSet
+
+
+            }
+        }
+
+
         Glide.with(holder.img.context)
             .load(currentItem.uri)
             .into(holder.img)
@@ -75,6 +130,22 @@ class DeleteAdapter(private val context: Context): RecyclerView.Adapter<DeleteAd
 
     fun getCheckedItems(): LiveData<MutableSet<MediaItem>> {
         return checkedItemList
+    }
+
+    fun checkAllItems(){
+        val currentCheckedSet = checkedItemList.value ?: mutableSetOf()
+
+        if(currentCheckedSet.size != list.size){
+        list.forEach { item ->
+            if(!currentCheckedSet.contains(item)){
+                currentCheckedSet.add(item)
+            }
+        }
+        }else{
+            currentCheckedSet.clear()
+        }
+
+        checkedItemList.value = currentCheckedSet
     }
 
     fun clearCheckedItems() {

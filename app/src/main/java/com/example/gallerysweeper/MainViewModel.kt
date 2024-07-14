@@ -56,12 +56,16 @@ class MainViewModel : ViewModel() {
     private val _allScreenshots = MutableLiveData<List<MediaItem>>()
     val allScreenshots: LiveData<List<MediaItem>> get() = _allScreenshots
 
-    val holdValue = MutableLiveData<Boolean>(false)
+    private val _selectionMode = MutableLiveData<Boolean>(false)
+    val selectionMode : LiveData<Boolean> get() = _selectionMode
 
 
-    fun setHoldValue(value: Boolean){
-        holdValue.value = value
+
+    fun setSelectionMode(value: Boolean){
+        _selectionMode.value = value
     }
+
+
     fun setDeletionCompleteValue(value: Boolean) {
         _deletionComplete.value = value
     }
@@ -169,7 +173,7 @@ class MainViewModel : ViewModel() {
                         val id = cursor.getLong(idColumn)
                         val name = cursor.getString(nameColumn)
                         val size = cursor.getLong(sizeColumn)
-                        val dateAdded = cursor.getLong(dateAddedColumn)
+                        val dateAdded = cursor.getLong(dateAddedColumn) * 1000L
                         val mimeType = cursor.getString(mimeTypeColumn)
                         val relativePath = cursor.getString(relativePathColumn)
 

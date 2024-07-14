@@ -25,6 +25,7 @@ import androidx.activity.result.registerForActivityResult
 import androidx.appcompat.app.ActionBar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
 
 
@@ -42,6 +43,7 @@ class MainActivity : AppCompatActivity() {
 //        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
 
         actionBar?.hide()
+
 
 
 
