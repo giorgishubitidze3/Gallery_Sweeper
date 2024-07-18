@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".fragments.CardStackFragment">
 
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/resetBtnTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:text="Reset"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/card_view_fragment"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <ImageButton
         android:id="@+id/btn_calendar"

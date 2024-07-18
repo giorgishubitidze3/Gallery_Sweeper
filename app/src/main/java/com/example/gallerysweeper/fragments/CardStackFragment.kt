@@ -178,6 +178,17 @@ class CardStackFragment : Fragment() {
             showDateRangePicker()
         }
 
+        binding.resetBtnTv.setOnClickListener {
+            val selectedFiles = arguments?.getParcelable<AlbumGroup>("selectedAlbum")
+            selectedFiles?.items?.let { adapter.setData(it) }
+            adapter.notifyDataSetChanged()
+            layoutManager.scrollToPosition(0)
+            viewModel.resetCurrentCardPosition()
+
+            Toast.makeText(requireContext(),"List reset", Toast.LENGTH_SHORT).show()
+            it.visibility = View.GONE
+        }
+
     }
 
 
@@ -283,7 +294,7 @@ class CardStackFragment : Fragment() {
             Log.d("DatePickerDebug", "Raw start: ${Date(selection.first ?: today)}")
             Log.d("DatePickerDebug", "Raw end: ${Date(selection.second ?: today)}")
 
-            // Set start date to the beginning of the selected day in device's time zone
+
             calendar.timeInMillis = selection.first ?: today
             calendar.set(Calendar.HOUR_OF_DAY, 0)
             calendar.set(Calendar.MINUTE, 0)
@@ -291,7 +302,7 @@ class CardStackFragment : Fragment() {
             calendar.set(Calendar.MILLISECOND, 0)
             startDate = calendar.timeInMillis
 
-            // Set end date to the end of the selected day in device's time zone
+
             calendar.timeInMillis = selection.second ?: today
             calendar.set(Calendar.HOUR_OF_DAY, 23)
             calendar.set(Calendar.MINUTE, 59)
@@ -306,7 +317,11 @@ class CardStackFragment : Fragment() {
         }
 
         dateRangePicker.show(parentFragmentManager, "DATE_RANGE_PICKER")
+        if(binding.resetBtnTv.visibility == View.GONE){
+            binding.resetBtnTv.visibility = View.VISIBLE
+        }
     }
+
 
     private fun filterMediaItems() {
         val selectedFiles = arguments?.getParcelable<AlbumGroup>("selectedAlbum")
@@ -326,7 +341,6 @@ class CardStackFragment : Fragment() {
             layoutManager.scrollToPosition(0)
             viewModel.resetCurrentCardPosition()
 
-            // Debug information
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.getDefault())
             Log.d("FilterDebug", "Start Date: ${dateFormat.format(Date(startDate))}")
             Log.d("FilterDebug", "End Date: ${dateFormat.format(Date(endDate))}")
