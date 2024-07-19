@@ -59,7 +59,27 @@ class MainViewModel : ViewModel() {
     private val _selectionMode = MutableLiveData<Boolean>(false)
     val selectionMode : LiveData<Boolean> get() = _selectionMode
 
+    private val _resetDateMode = MutableLiveData<Boolean>(false)
+    val resetDateMode : LiveData<Boolean> get() = _resetDateMode
 
+    private val _originalAlbumGroup = MutableLiveData<AlbumGroup>()
+    val originalAlbumGroup: LiveData<AlbumGroup> = _originalAlbumGroup
+
+    fun setOriginalAlbumGroup(albumGroup: AlbumGroup) {
+        _originalAlbumGroup.value = albumGroup
+    }
+
+    fun updateOriginalAlbumGroup(deletedItems: List<MediaItem>) {
+        val currentOriginalAlbum = _originalAlbumGroup.value
+        if (currentOriginalAlbum != null) {
+            val updatedItems = currentOriginalAlbum.items.filter { it !in deletedItems }
+            _originalAlbumGroup.value = AlbumGroup(currentOriginalAlbum.name, updatedItems)
+        }
+    }
+
+    fun setResetMode(value : Boolean){
+        _resetDateMode.value = value
+    }
 
     fun setSelectionMode(value: Boolean){
         _selectionMode.value = value
@@ -251,8 +271,13 @@ class MainViewModel : ViewModel() {
 
             withContext(Dispatchers.Main) {
                 _allMediaItems.value = remainingItems
+                _allPhotos.value = _allPhotos.value?.filter { it !in deletedItems }
+                _allVideos.value = _allVideos.value?.filter { it !in deletedItems }
+                _allScreenshots.value = _allScreenshots.value?.filter { it !in deletedItems }
 
                 _itemsToDelete.value = _itemsToDelete.value?.filter { it !in deletedItems }
+
+                updateOriginalAlbumGroup(deletedItems)
 
                 _deletionComplete.value = true
                 updateGroupedMediaItems(groupType)

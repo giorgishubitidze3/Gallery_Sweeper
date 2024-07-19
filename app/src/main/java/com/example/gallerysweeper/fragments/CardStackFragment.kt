@@ -61,11 +61,14 @@ class CardStackFragment : Fragment() {
         val selectedFiles: AlbumGroup? = arguments?.getParcelable("selectedAlbum")
         selectedFiles?.let {
             Toast.makeText(requireContext(), "Size of the data: ${it.items.size}", Toast.LENGTH_SHORT).show()
+            viewModel.setOriginalAlbumGroup(it)
         } ?: run {
             Toast.makeText(requireContext(), "Selected files are null", Toast.LENGTH_SHORT).show()
         }
         adapter = CardViewAdapter(requireContext())
-        selectedFiles?.items?.let { adapter.setData(it) }
+        selectedFiles?.items?.let {
+            adapter.setData(it)
+        }
 
         cardStackView = binding.cardViewFragment
 
@@ -178,15 +181,28 @@ class CardStackFragment : Fragment() {
             showDateRangePicker()
         }
 
-        binding.resetBtnTv.setOnClickListener {
-            val selectedFiles = arguments?.getParcelable<AlbumGroup>("selectedAlbum")
-            selectedFiles?.items?.let { adapter.setData(it) }
-            adapter.notifyDataSetChanged()
-            layoutManager.scrollToPosition(0)
-            viewModel.resetCurrentCardPosition()
+        viewModel.resetDateMode.observe(viewLifecycleOwner){state ->
+            if(state){
+                binding.resetBtnTv.visibility = View.VISIBLE
+            }else{
+                binding.resetBtnTv.visibility = View.GONE
+            }
+        }
 
-            Toast.makeText(requireContext(),"List reset", Toast.LENGTH_SHORT).show()
-            it.visibility = View.GONE
+
+        binding.resetBtnTv.setOnClickListener {
+            viewModel.originalAlbumGroup.value?.let { originalAlbumGroup ->
+                adapter.setData(originalAlbumGroup.items)
+                adapter.notifyDataSetChanged()
+                layoutManager.scrollToPosition(0)
+                viewModel.resetCurrentCardPosition()
+
+                startDate = 0L
+                endDate = 0L
+
+                Toast.makeText(requireContext(), "List reset", Toast.LENGTH_SHORT).show()
+                viewModel.setResetMode(false)
+            }
         }
 
     }
@@ -228,29 +244,28 @@ class CardStackFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        val selectedFiles = arguments?.getParcelable<AlbumGroup>("selectedAlbum")
-        selectedFiles?.let { albumGroup ->
+        val originalAlbumGroup = viewModel.originalAlbumGroup.value
+        originalAlbumGroup?.let { albumGroup ->
+            // Synchronize the originalAlbumGroup with allMediaItems
+            val synchronizedItems = albumGroup.items.filter { item ->
+                viewModel.allMediaItems.value?.contains(item) ?: false
+            }
+
+            // If there's a change, update the originalAlbumGroup in the ViewModel
+            if (synchronizedItems.size != albumGroup.items.size) {
+                viewModel.setOriginalAlbumGroup(AlbumGroup(albumGroup.name, synchronizedItems))
+            }
+
+            // Apply date filtering if necessary, but only on items that still exist
             val updatedItems = if (startDate != 0L && endDate != 0L) {
-                albumGroup.items.filter { item ->
-                    item.dateAdded in startDate..endDate &&
-                            (viewModel.allMediaItems.value?.contains(item) ?: false)
+                synchronizedItems.filter { item ->
+                    item.dateAdded in startDate..endDate
                 }
             } else {
-                albumGroup.items.filter { item ->
-                    viewModel.allMediaItems.value?.contains(item) ?: false
-                }
+                synchronizedItems
             }
 
-            if (updatedItems.isEmpty() && (startDate != 0L || endDate != 0L)) {
-                // Reset the filter if the filtered list is empty
-                startDate = 0L
-                endDate = 0L
-                adapter.setData(albumGroup.items)
-                Toast.makeText(requireContext(), "Filter reset. Showing all items.", Toast.LENGTH_SHORT).show()
-            } else if (updatedItems.size != albumGroup.items.size) {
-                adapter.setData(updatedItems)
-            }
-
+            adapter.setData(updatedItems)
             adapter.notifyDataSetChanged()
 
             if (layoutManager.topPosition >= updatedItems.size) {
@@ -260,11 +275,9 @@ class CardStackFragment : Fragment() {
                 viewModel.currentCardPosition.value?.let { layoutManager.scrollToPosition(it) }
             }
 
-            val updatedAlbumGroup = AlbumGroup(albumGroup.name, updatedItems)
-            arguments?.putParcelable("selectedAlbum", updatedAlbumGroup)
-
             Log.d("OnResumeDebug", "Updated items: ${updatedItems.size}")
             Log.d("OnResumeDebug", "Original items: ${albumGroup.items.size}")
+            Log.d("OnResumeDebug", "Synchronized items: ${synchronizedItems.size}")
         }
 
         viewModel.currentCardPosition.value?.let { position ->
@@ -275,6 +288,7 @@ class CardStackFragment : Fragment() {
 
         updateVisibleVideos()
     }
+
 
     private fun showDateRangePicker() {
         val today = MaterialDatePicker.todayInUtcMilliseconds()
@@ -313,20 +327,25 @@ class CardStackFragment : Fragment() {
             Log.d("DatePickerDebug", "Adjusted start: ${Date(startDate)}")
             Log.d("DatePickerDebug", "Adjusted end: ${Date(endDate)}")
 
+
+            viewModel.setResetMode(true)
             filterMediaItems()
         }
 
         dateRangePicker.show(parentFragmentManager, "DATE_RANGE_PICKER")
-        if(binding.resetBtnTv.visibility == View.GONE){
-            binding.resetBtnTv.visibility = View.VISIBLE
-        }
+
     }
 
 
     private fun filterMediaItems() {
-        val selectedFiles = arguments?.getParcelable<AlbumGroup>("selectedAlbum")
-        selectedFiles?.let { albumGroup ->
-            val filteredItems = albumGroup.items.filter { item ->
+        viewModel.originalAlbumGroup.value?.let { albumGroup ->
+            // First, synchronize with allMediaItems
+            val synchronizedItems = albumGroup.items.filter { item ->
+                viewModel.allMediaItems.value?.contains(item) ?: false
+            }
+
+            // Then apply date filter
+            val filteredItems = synchronizedItems.filter { item ->
                 val itemDate = Calendar.getInstance().apply {
                     timeInMillis = item.dateAdded
                     set(Calendar.HOUR_OF_DAY, 0)
@@ -336,6 +355,7 @@ class CardStackFragment : Fragment() {
                 }.timeInMillis
                 itemDate in startDate..endDate
             }
+
             adapter.setData(filteredItems)
             adapter.notifyDataSetChanged()
             layoutManager.scrollToPosition(0)
@@ -349,15 +369,11 @@ class CardStackFragment : Fragment() {
                 Log.d("FilterDebug", "Item date: ${dateFormat.format(Date(it.dateAdded))}")
             }
 
-            // Log all items for debugging
-            Log.d("FilterDebug", "All items: ${albumGroup.items.size}")
-            albumGroup.items.forEach {
-                Log.d("FilterDebug", "All item date: ${dateFormat.format(Date(it.dateAdded))}")
-            }
-
             Toast.makeText(requireContext(), "Filtered items: ${filteredItems.size}", Toast.LENGTH_SHORT).show()
         }
     }
+
+
     override fun onPause() {
         super.onPause()
         for (i in 0 until adapter.itemCount) {
