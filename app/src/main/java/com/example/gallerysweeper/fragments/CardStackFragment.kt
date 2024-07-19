@@ -60,10 +60,10 @@ class CardStackFragment : Fragment() {
 
         val selectedFiles: AlbumGroup? = arguments?.getParcelable("selectedAlbum")
         selectedFiles?.let {
-            Toast.makeText(requireContext(), "Size of the data: ${it.items.size}", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(requireContext(), "Size of the data: ${it.items.size}", Toast.LENGTH_SHORT).show()
             viewModel.setOriginalAlbumGroup(it)
         } ?: run {
-            Toast.makeText(requireContext(), "Selected files are null", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(requireContext(), "Selected files are null", Toast.LENGTH_SHORT).show()
         }
         adapter = CardViewAdapter(requireContext())
         selectedFiles?.items?.let {
@@ -163,7 +163,7 @@ class CardStackFragment : Fragment() {
         }
 
         binding.btnReset.setOnClickListener {
-            Toast.makeText(requireContext(), "btn clicked", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(requireContext(), "btn clicked", Toast.LENGTH_SHORT).show()
             val setting = RewindAnimationSetting.Builder()
                 .setDirection(Direction.Left)
                 .setDuration(Duration.Normal.duration)
@@ -200,7 +200,7 @@ class CardStackFragment : Fragment() {
                 startDate = 0L
                 endDate = 0L
 
-                Toast.makeText(requireContext(), "List reset", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(requireContext(), "List reset", Toast.LENGTH_SHORT).show()
                 viewModel.setResetMode(false)
             }
         }
@@ -369,7 +369,7 @@ class CardStackFragment : Fragment() {
                 Log.d("FilterDebug", "Item date: ${dateFormat.format(Date(it.dateAdded))}")
             }
 
-            Toast.makeText(requireContext(), "Filtered items: ${filteredItems.size}", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(requireContext(), "Filtered items: ${filteredItems.size}", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -217,7 +217,7 @@ class MainViewModel : ViewModel() {
                                 allMediaItems.add(mediaItem)
 
                                 if (mimeType.startsWith("image")) {
-                                    if (!isScreenshot(name)) {
+                                    if (!isScreenshot(name) && !relativePath.contains("Screenshots")) {
                                         photos.add(mediaItem)
                                     } else {
                                         screenshots.add(mediaItem)

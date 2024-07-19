@@ -51,5 +51,10 @@
         <action
             android:id="@+id/action_listToDeleteFragment_to_allMediaFragment"
             app:destination="@id/allMediaFragment" />
+        <action
+            android:id="@+id/action_listToDeleteFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 </navigation>
