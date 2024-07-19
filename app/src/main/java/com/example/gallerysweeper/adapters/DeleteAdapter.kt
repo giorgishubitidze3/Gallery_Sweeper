@@ -76,6 +76,14 @@ class DeleteAdapter(private val context: Context, private val viewModel: MainVie
             holder.videoLength.visibility = View.GONE
         }
 
+        viewModel.selectionMode.observe(viewLifecycleOwner){state ->
+            if(state){
+                holder.checkBox.visibility = View.VISIBLE
+            }else{
+                holder.checkBox.visibility = View.GONE
+            }
+        }
+
         holder.checkBox.setOnCheckedChangeListener { compoundButton, isChecked ->
             val currentCheckedSet = checkedItemList.value ?: mutableSetOf()
 

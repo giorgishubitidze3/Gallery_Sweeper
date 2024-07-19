@@ -10,7 +10,7 @@
         android:layout_gravity="end"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:visibility="visible"
+        android:visibility="gone"
         android:elevation="10dp"
         android:checkMark="?android:attr/listChoiceIndicatorSingle"
         />
@@ -19,7 +19,8 @@
         android:scaleType="centerCrop"
         android:id="@+id/img_delete_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        />
 
 
     <FrameLayout
